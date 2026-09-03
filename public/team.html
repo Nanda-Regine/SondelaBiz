@@ -939,17 +939,25 @@ curl "http://localhost:3000/api/businesses?category=plumber"</pre>
     document.getElementById('nav-drawer').classList.toggle('open')
   }
 
-  // Highlight active TOC link on scroll
+  // Highlight active TOC link on scroll — throttled via rAF so it
+  // never blocks the main thread between frames
   const sections = document.querySelectorAll('section[id]')
   const tocLinks  = document.querySelectorAll('.toc a')
+  let tocTicking  = false
   window.addEventListener('scroll', () => {
-    let current = ''
-    sections.forEach(s => {
-      if (window.scrollY >= s.offsetTop - 100) current = s.id
-    })
-    tocLinks.forEach(a => {
-      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--fuchsia)' : ''
-      a.style.background = a.getAttribute('href') === '#' + current ? 'var(--surface-2)' : ''
+    if (tocTicking) return
+    tocTicking = true
+    requestAnimationFrame(() => {
+      let current = ''
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 100) current = s.id
+      })
+      tocLinks.forEach(a => {
+        const active = a.getAttribute('href') === '#' + current
+        a.style.color      = active ? 'var(--fuchsia)' : ''
+        a.style.background = active ? 'var(--surface-2)' : ''
+      })
+      tocTicking = false
     })
   }, { passive: true })
 </script>
