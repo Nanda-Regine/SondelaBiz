@@ -85,8 +85,22 @@
       <a href="join.html" class="btn btn-primary btn-sm">Register Free</a>
       <a id="nav-dashboard" href="network.html" class="btn btn-primary btn-sm" style="display:none">Dashboard</a>
     </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+<div class="nav-drawer" id="nav-drawer">
+  <ul>
+    <li><a href="directory.html">Find Business</a></li>
+    <li><a href="board.html" class="active">I Need / I Offer</a></li>
+    <li><a href="network.html">My Network</a></li>
+  </ul>
+  <div class="nav-drawer-actions">
+    <a href="join.html" class="btn btn-primary btn-sm">+ New Post</a>
+    <a href="join.html" class="btn btn-glass btn-sm">Log in</a>
+  </div>
+</div>
 
 <div class="container">
   <!-- Header -->
@@ -185,6 +199,10 @@
 
 <script src="js/app.js" type="module"></script>
 <script>
+  function toggleNav() {
+    document.getElementById('hamburger').classList.toggle('open')
+    document.getElementById('nav-drawer').classList.toggle('open')
+  }
   let currentTab = 'all'
   let postType   = 'need'
   let posts      = []

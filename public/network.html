@@ -137,8 +137,21 @@
     <div class="nav-actions">
       <button class="btn btn-glass btn-sm" onclick="logout()">Log out</button>
     </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+<div class="nav-drawer" id="nav-drawer">
+  <ul>
+    <li><a href="directory.html">Find Business</a></li>
+    <li><a href="board.html">I Need / I Offer</a></li>
+    <li><a href="network.html" class="active">My Network</a></li>
+  </ul>
+  <div class="nav-drawer-actions">
+    <button class="btn btn-glass btn-sm" onclick="logout()">Log out</button>
+  </div>
+</div>
 
 <div class="container">
   <div class="dashboard">
@@ -274,6 +287,10 @@
 
 <script src="js/app.js" type="module"></script>
 <script>
+  function toggleNav() {
+    document.getElementById('hamburger').classList.toggle('open')
+    document.getElementById('nav-drawer').classList.toggle('open')
+  }
   // ── Auth guard ─────────────────────────────────────────────
   const me = JSON.parse(localStorage.getItem('sb_me') || 'null')
   if (!localStorage.getItem('sb_token')) {

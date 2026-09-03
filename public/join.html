@@ -72,6 +72,19 @@
     }
     .auth-tab.active { background: var(--surface-2); color: var(--text-1); }
 
+    /* Mobile-only top bar for join page */
+    .join-mobile-bar {
+      display: none;
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      justify-content: space-between;
+    }
+    @media (max-width: 768px) {
+      .join-mobile-bar { display: flex; }
+      .join-right { padding: 1.5rem 1.25rem; max-width: 100%; }
+    }
+
     /* Trust preview */
     .trust-preview {
       background: var(--surface-1);
@@ -83,6 +96,15 @@
   </style>
 </head>
 <body>
+
+<!-- Mobile-only top bar (shown when left panel is hidden) -->
+<div class="join-mobile-bar">
+  <a href="index.html" class="nav-logo" style="font-size:0.85rem">
+    <div class="nav-logo-mark" style="width:26px;height:26px;font-size:0.65rem">S</div>
+    SondelaBiz
+  </a>
+  <a href="index.html" class="btn btn-glass btn-sm">← Back</a>
+</div>
 
 <div class="join-wrap">
   <!-- ── Left panel ── -->

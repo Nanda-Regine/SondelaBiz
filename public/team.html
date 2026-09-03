@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team HQ — SondelaBiz</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    /* ── Sidebar TOC layout ── */
+    .hq-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 2rem;
+      padding: 1.5rem 0 4rem;
+      align-items: start;
+    }
+    @media (max-width: 900px) { .hq-layout { grid-template-columns: 1fr; } }
+
+    /* TOC */
+    .toc {
+      position: sticky; top: 80px;
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.25rem;
+    }
+    .toc-title { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin-bottom: 0.75rem; }
+    .toc a {
+      display: block; padding: 0.4rem 0.65rem; border-radius: 6px;
+      font-size: 0.8rem; color: var(--text-2); text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .toc a:hover { background: var(--surface-2); color: var(--text-1); }
+    .toc a.sub { padding-left: 1.25rem; font-size: 0.74rem; color: var(--text-3); }
+    .toc a.sub:hover { color: var(--text-2); }
+
+    /* Main content */
+    .hq-content section {
+      padding: 2.5rem 0;
+      border-top: 1px solid var(--border);
+    }
+    .hq-content section:first-child { border-top: none; padding-top: 0; }
+    .hq-content h2 { font-size: 1.4rem; margin-bottom: 1.25rem; scroll-margin-top: 80px; }
+    .hq-content h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 0.6rem; color: var(--text-1); }
+    .hq-content p  { color: var(--text-2); font-size: 0.9rem; margin-bottom: 0.75rem; }
+
+    /* Code blocks */
+    pre {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 1rem 1.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: #b4f0a0;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+    }
+    code {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1rem 0.4rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      color: var(--fuchsia);
+    }
+
+    /* Tables */
+    .hq-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; margin: 0.75rem 0; overflow-x: auto; display: block; }
+    .hq-table th {
+      text-align: left; padding: 0.55rem 0.9rem;
+      background: var(--surface-2); border-bottom: 1px solid var(--border-bright);
+      color: var(--text-2); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700;
+      white-space: nowrap;
+    }
+    .hq-table td {
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-2);
+      vertical-align: top;
+    }
+    .hq-table tr:last-child td { border-bottom: none; }
+    .hq-table td:first-child { color: var(--text-1); font-weight: 600; white-space: nowrap; }
+
+    /* Person cards */
+    .person-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+    .person-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 1.25rem;
+    }
+    .person-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1rem; font-weight: 900; color: white;
+      margin-bottom: 0.75rem;
+    }
+    .person-name { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .person-role { font-size: 0.72rem; color: var(--fuchsia); font-weight: 600; margin-bottom: 0.6rem; }
+    .person-tasks { font-size: 0.76rem; color: var(--text-2); line-height: 1.6; }
+
+    /* Tip boxes */
+    .tip {
+      border-radius: var(--r-sm);
+      padding: 0.9rem 1.1rem;
+      margin: 0.75rem 0;
+      font-size: 0.85rem;
+      display: flex; gap: 0.65rem; align-items: flex-start;
+    }
+    .tip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .tip-body { color: var(--text-2); line-height: 1.5; }
+    .tip-body strong { color: var(--text-1); }
+    .tip.green  { background: rgba(0,230,118,0.07);  border: 1px solid rgba(0,230,118,0.2); }
+    .tip.yellow { background: rgba(255,214,0,0.07);  border: 1px solid rgba(255,214,0,0.2); }
+    .tip.red    { background: rgba(255,61,0,0.07);   border: 1px solid rgba(255,61,0,0.2); }
+    .tip.blue   { background: rgba(41,121,255,0.07); border: 1px solid rgba(41,121,255,0.2); }
+
+    /* Step list */
+    .step-list { display: flex; flex-direction: column; gap: 0.6rem; margin: 0.75rem 0; }
+    .step-item {
+      display: flex; gap: 0.9rem; align-items: flex-start;
+      background: var(--surface-1); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 0.75rem 1rem;
+    }
+    .step-num {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      background: var(--fuchsia-dim); border: 1px solid rgba(224,64,251,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; color: var(--fuchsia);
+    }
+    .step-text { font-size: 0.85rem; color: var(--text-2); line-height: 1.5; padding-top: 1px; }
+    .step-text strong { color: var(--text-1); }
+
+    /* Live links */
+    .link-card {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      background: var(--surface-1); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem; flex-wrap: wrap;
+    }
+    .link-card .link-label { font-size: 0.82rem; font-weight: 600; }
+    .link-card a { font-size: 0.78rem; color: var(--cobalt); word-break: break-all; }
+
+    /* Hackathon timeline */
+    .timeline { display: flex; flex-direction: column; gap: 0; margin: 1rem 0; }
+    .tl-item { display: grid; grid-template-columns: 80px 1fr; gap: 1rem; position: relative; }
+    .tl-item::before {
+      content: ''; position: absolute;
+      left: 39px; top: 32px; bottom: -16px; width: 2px;
+      background: var(--border);
+    }
+    .tl-item:last-child::before { display: none; }
+    .tl-time {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.65rem; font-weight: 700; color: var(--text-3);
+      text-align: right; padding-top: 0.5rem;
+    }
+    .tl-body {
+      background: var(--surface-1); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .tl-body h4 { font-size: 0.85rem; margin-bottom: 0.35rem; }
+    .tl-body ul { padding-left: 1.1rem; font-size: 0.8rem; color: var(--text-2); line-height: 1.7; }
+
+    /* Error/fix table */
+    .err-row td:nth-child(1) { color: var(--crimson); }
+    .err-row td:nth-child(2) { color: var(--lime); }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-mark">S</div> SondelaBiz
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Platform</a></li>
+      <li><a href="pitch.html">Pitch</a></li>
+      <li><a href="team.html" class="active">Team HQ</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="pitch.html" class="btn btn-glass btn-sm">Pitch →</a>
+      <a href="index.html" class="btn btn-primary btn-sm">Platform →</a>
+    </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="nav-drawer" id="nav-drawer">
+  <ul>
+    <li><a href="index.html">Platform</a></li>
+    <li><a href="pitch.html">Pitch</a></li>
+    <li><a href="team.html" class="active">Team HQ</a></li>
+  </ul>
+  <div class="nav-drawer-actions">
+    <a href="index.html" class="btn btn-primary btn-sm">Platform →</a>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Page header -->
+  <div style="padding: 2rem 0 0">
+    <span class="badge badge-fuchsia" style="margin-bottom:0.75rem">Internal · Team Only</span>
+    <h1 style="font-size:clamp(1.6rem,4vw,2.5rem);margin-bottom:0.5rem">
+      Team <span class="grad-fuchsia-cobalt">HQ</span>
+    </h1>
+    <p class="text-muted" style="max-width:55ch">
+      Everything you need to build, debug, demo, and ship SondelaBiz in 24 hours.
+      Read this before you write a single line of code.
+    </p>
+  </div>
+
+  <div class="hq-layout">
+    <!-- ── TOC sidebar ── -->
+    <nav class="toc" aria-label="Table of contents">
+      <div class="toc-title">On this page</div>
+      <a href="#links">🌐 Live Links</a>
+      <a href="#what-we-built">🏗 What We Built</a>
+      <a href="#file-map">📁 File Map</a>
+      <a href="#team-roles">👥 Team Roles</a>
+      <a href="#setup">⚙️ Local Setup</a>
+      <a href="#git">🌿 Git Workflow</a>
+      <a href="#timeline">⏱ 24hr Timeline</a>
+      <a href="#demo">🎤 Demo Script</a>
+      <a href="#api">📡 API Reference</a>
+      <a href="#database">🗄 Database</a>
+      <a href="#tips">💡 Tips & Tricks</a>
+      <a href="#errors">🔴 Common Errors</a>
+      <a href="#rules">⚠️ Hard Rules</a>
+    </nav>
+
+    <!-- ── Main content ── -->
+    <main class="hq-content">
+
+      <!-- LIVE LINKS -->
+      <section id="links">
+        <h2>🌐 Live Links</h2>
+        <div class="tip green">
+          <span class="tip-icon">✅</span>
+          <div class="tip-body">The site is <strong>live on Vercel right now</strong> — share these links with anyone.</div>
+        </div>
+        <div class="link-card">
+          <span class="link-label">🏠 Homepage</span>
+          <a href="https://sondela-biz.vercel.app" target="_blank">sondela-biz.vercel.app</a>
+        </div>
+        <div class="link-card">
+          <span class="link-label">🔍 Directory</span>
+          <a href="https://sondela-biz.vercel.app/directory.html" target="_blank">sondela-biz.vercel.app/directory.html</a>
+        </div>
+        <div class="link-card">
+          <span class="link-label">📋 Board</span>
+          <a href="https://sondela-biz.vercel.app/board.html" target="_blank">sondela-biz.vercel.app/board.html</a>
+        </div>
+        <div class="link-card">
+          <span class="link-label">🤝 Dashboard</span>
+          <a href="https://sondela-biz.vercel.app/network.html" target="_blank">sondela-biz.vercel.app/network.html</a>
+        </div>
+        <div class="link-card">
+          <span class="link-label">✍️ Register</span>
+          <a href="https://sondela-biz.vercel.app/join.html" target="_blank">sondela-biz.vercel.app/join.html</a>
+        </div>
+        <div class="link-card">
+          <span class="link-label">🎤 Pitch (for judges)</span>
+          <a href="https://sondela-biz.vercel.app/pitch.html" target="_blank">sondela-biz.vercel.app/pitch.html</a>
+        </div>
+        <div class="link-card">
+          <span class="link-label">📦 GitHub Repo</span>
+          <a href="https://github.com/Nanda-Regine/SondelaBiz" target="_blank">github.com/Nanda-Regine/SondelaBiz</a>
+        </div>
+        <div class="tip blue">
+          <span class="tip-icon">💡</span>
+          <div class="tip-body">Every push to <code>main</code> on GitHub auto-deploys to Vercel. You don't need to do anything — just push your code.</div>
+        </div>
+      </section>
+
+      <!-- WHAT WE BUILT -->
+      <section id="what-we-built">
+        <h2>🏗 What We Built</h2>
+        <p>SondelaBiz is a <strong>B2B network + public business directory</strong> for Mdantsane township, East London. Two products in one:</p>
+
+        <h3>Part A — Public Directory (no login)</h3>
+        <p>Anyone in South Africa can search for a Mdantsane business, see their Trusted Trader badge, rating, and services, and contact them instantly via WhatsApp. No app to install. Works on any phone.</p>
+
+        <h3>Part B — B2B Network (login required)</h3>
+        <p>Registered businesses can post "I NEED" and "I OFFER" requests on the board, respond to each other's posts, confirm trades, and build a verified reputation through the Trusted Trader system.</p>
+
+        <h3>Trusted Trader System</h3>
+        <table class="hq-table">
+          <thead><tr><th>Badge</th><th>Requirement</th><th>How it's awarded</th></tr></thead>
+          <tbody>
+            <tr><td>🆕 New Trader</td><td>Just joined</td><td>Automatic on registration</td></tr>
+            <tr><td>🥉 Bronze</td><td>5+ trades · 3.5★ avg</td><td>MySQL trigger on each review</td></tr>
+            <tr><td>🥈 Silver</td><td>20+ trades · 4.0★ avg</td><td>MySQL trigger on each review</td></tr>
+            <tr><td>🥇 Gold</td><td>50+ trades · 4.5★ avg</td><td>MySQL trigger on each review</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Tech Stack</h3>
+        <table class="hq-table">
+          <thead><tr><th>Layer</th><th>Technology</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Frontend</td><td>HTML + CSS + JavaScript</td><td>Works on any browser, no build step</td></tr>
+            <tr><td>Animations</td><td>Motion One (CDN)</td><td>Same physics as Framer Motion, vanilla JS</td></tr>
+            <tr><td>Fonts</td><td>Unbounded + Plus Jakarta Sans</td><td>Premium look, Google Fonts CDN</td></tr>
+            <tr><td>Backend</td><td>Node.js + Express.js</td><td>Simple, fast REST API</td></tr>
+            <tr><td>Auth</td><td>JWT + bcrypt</td><td>Secure, stateless tokens</td></tr>
+            <tr><td>Database</td><td>MySQL</td><td>Relational, handles the tier trigger logic</td></tr>
+            <tr><td>Deploy</td><td>Vercel (static) + Railway (backend)</td><td>Free tiers, fast deploys</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- FILE MAP -->
+      <section id="file-map">
+        <h2>📁 File Map</h2>
+        <p>Here is every file in the repo and what it does:</p>
+
+        <h3>Frontend — <code>public/</code></h3>
+        <table class="hq-table">
+          <thead><tr><th>File</th><th>What it does</th><th>Owner</th></tr></thead>
+          <tbody>
+            <tr><td>index.html</td><td>Homepage: hero, category grid, featured businesses, tier explainer</td><td>Xolani + Siyamthanda</td></tr>
+            <tr><td>directory.html</td><td>Public business search: filters (category, zone, tier), profile modal, WhatsApp contact</td><td>Siyamthanda</td></tr>
+            <tr><td>board.html</td><td>I NEED / I OFFER board: two columns, respond flow, new post modal</td><td>Amahle</td></tr>
+            <tr><td>network.html</td><td>B2B dashboard: trade stats, trade list, my posts, edit profile</td><td>Amahle</td></tr>
+            <tr><td>join.html</td><td>2-step registration + login tab</td><td>Lindokuhle</td></tr>
+            <tr><td>pitch.html</td><td>Hackathon brief for judges: problem, solution, pricing, SDGs, team</td><td>Lekgothe</td></tr>
+            <tr><td>team.html</td><td>This page — internal team guide</td><td>Everyone</td></tr>
+            <tr><td>css/main.css</td><td>Full design system: glassmorphism, 7 colours, fonts, badges, mobile CSS</td><td>Xolani</td></tr>
+            <tr><td>js/app.js</td><td>Shared utilities, mock data, scroll animations, toast notifications</td><td>Lindokuhle</td></tr>
+            <tr><td>js/api.js</td><td>API client — switch on when MySQL is running (DEMO_MODE=false)</td><td>Lindokuhle</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Backend — <code>server/</code></h3>
+        <table class="hq-table">
+          <thead><tr><th>File</th><th>What it does</th><th>Owner</th></tr></thead>
+          <tbody>
+            <tr><td>index.js</td><td>Express app entry point — starts server, mounts routes, serves public/</td><td>Lindokuhle</td></tr>
+            <tr><td>middleware/auth.js</td><td>requireAuth — checks JWT token on protected routes</td><td>Lindokuhle</td></tr>
+            <tr><td>routes/auth.js</td><td>POST /api/auth/register + /api/auth/login</td><td>Lindokuhle</td></tr>
+            <tr><td>routes/businesses.js</td><td>Public directory, business profile, leave review</td><td>Siyamthanda</td></tr>
+            <tr><td>routes/board.js</td><td>Board posts, respond, transactions (trades)</td><td>Amahle</td></tr>
+            <tr><td>db/schema.sql</td><td>All 9 MySQL tables + automated tier trigger</td><td>Lindokuhle</td></tr>
+            <tr><td>db/connection.js</td><td>MySQL connection pool — reads from .env</td><td>Lindokuhle</td></tr>
+            <tr><td>db/seed.js</td><td>6 demo Mdantsane businesses + board posts (run once)</td><td>Lindokuhle</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Config files (root)</h3>
+        <table class="hq-table">
+          <thead><tr><th>File</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td>.env.example</td><td>Template for your .env — copy this, fill in your credentials</td></tr>
+            <tr><td>.env (not in repo)</td><td>Your real secrets — NEVER commit this file</td></tr>
+            <tr><td>package.json</td><td>Project dependencies and npm scripts</td></tr>
+            <tr><td>vercel.json</td><td>Tells Vercel: serve public/ as a static site, no build step</td></tr>
+            <tr><td>.gitignore</td><td>Excludes .env, node_modules, build artifacts from git</td></tr>
+            <tr><td>README.md</td><td>Project overview for the GitHub repo page</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- TEAM ROLES -->
+      <section id="team-roles">
+        <h2>👥 Team Roles & Tasks</h2>
+        <div class="person-grid">
+          <div class="person-card" style="border-color:rgba(224,64,251,0.25)">
+            <div class="person-avatar" style="background:linear-gradient(135deg,#E040FB,#2979FF)">L</div>
+            <div class="person-name">Lindokuhle Ntuli</div>
+            <div class="person-role">Team Lead · Backend · DB</div>
+            <div class="person-tasks">
+              ✓ server/index.js<br>
+              ✓ db/schema.sql<br>
+              ✓ db/seed.js<br>
+              ✓ routes/auth.js<br>
+              ✓ js/app.js + api.js<br>
+              → Wire join.html to real API<br>
+              → Set up local MySQL + .env
+            </div>
+          </div>
+          <div class="person-card" style="border-color:rgba(41,121,255,0.25)">
+            <div class="person-avatar" style="background:linear-gradient(135deg,#2979FF,#00E676)">X</div>
+            <div class="person-name">Xolani</div>
+            <div class="person-role">UI Lead · Styling</div>
+            <div class="person-tasks">
+              ✓ css/main.css design system<br>
+              ✓ Navbar + hamburger menu<br>
+              → Polish mobile layout<br>
+              → Add hover effects<br>
+              → Fix any visual bugs<br>
+              → Make index.html shine
+            </div>
+          </div>
+          <div class="person-card" style="border-color:rgba(0,230,118,0.25)">
+            <div class="person-avatar" style="background:linear-gradient(135deg,#00E676,#FFD600)">S</div>
+            <div class="person-name">Siyamthanda Ndabeni</div>
+            <div class="person-role">Public Pages</div>
+            <div class="person-tasks">
+              ✓ directory.html<br>
+              ✓ routes/businesses.js<br>
+              → Connect search to real API<br>
+              → Test category filters<br>
+              → Test profile modal on mobile<br>
+              → Add more demo businesses
+            </div>
+          </div>
+          <div class="person-card" style="border-color:rgba(255,214,0,0.25)">
+            <div class="person-avatar" style="background:linear-gradient(135deg,#FFD600,#FF3D00)">A</div>
+            <div class="person-name">Amahle Axola</div>
+            <div class="person-role">B2B Network</div>
+            <div class="person-tasks">
+              ✓ board.html<br>
+              ✓ network.html<br>
+              ✓ routes/board.js<br>
+              → Wire "Post" button to real API<br>
+              → Wire "Respond" to real API<br>
+              → Wire trade confirm to API<br>
+              → Test full board flow
+            </div>
+          </div>
+          <div class="person-card" style="border-color:rgba(255,61,0,0.25)">
+            <div class="person-avatar" style="background:linear-gradient(135deg,#FF3D00,#E040FB)">L</div>
+            <div class="person-name">Lekgothe Ngoepe</div>
+            <div class="person-role">Pitch · Deploy</div>
+            <div class="person-tasks">
+              ✓ pitch.html<br>
+              ✓ Vercel deployment<br>
+              → Polish pitch with screenshots<br>
+              → Prepare the 3-min demo<br>
+              → Deploy backend to Railway<br>
+              → Update team.html live links
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETUP -->
+      <section id="setup">
+        <h2>⚙️ Local Setup (do this first)</h2>
+        <div class="tip yellow">
+          <span class="tip-icon">⚠️</span>
+          <div class="tip-body"><strong>Everyone</strong> needs to clone the repo and run npm install. Only <strong>Lindokuhle</strong> needs to set up MySQL.</div>
+        </div>
+
+        <h3>Step 1 — Clone the repo</h3>
+        <pre>git clone https://github.com/Nanda-Regine/SondelaBiz.git
+cd SondelaBiz</pre>
+
+        <h3>Step 2 — Install dependencies</h3>
+        <pre>npm install</pre>
+
+        <h3>Step 3 — Create your .env file</h3>
+        <pre>cp .env.example .env</pre>
+        <p>Then open <code>.env</code> and fill in your MySQL details:</p>
+        <pre>PORT=3000
+NODE_ENV=development
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_mysql_password_here
+DB_NAME=sondela_biz
+JWT_SECRET=make_up_any_long_random_string_here
+JWT_EXPIRES_IN=7d</pre>
+        <div class="tip red">
+          <span class="tip-icon">🚫</span>
+          <div class="tip-body"><strong>NEVER commit .env to GitHub.</strong> It's already in .gitignore — but double check. If you accidentally commit it, tell Lindokuhle immediately.</div>
+        </div>
+
+        <h3>Step 4 — Set up MySQL database</h3>
+        <pre>mysql -u root -p &lt; server/db/schema.sql</pre>
+        <p>This creates the <code>sondela_biz</code> database and all 9 tables.</p>
+
+        <h3>Step 5 — Seed demo data</h3>
+        <pre>npm run seed</pre>
+        <p>Creates 6 demo Mdantsane businesses + board posts. Demo password for all: <code>sondela123</code></p>
+
+        <h3>Step 6 — Start the server</h3>
+        <pre>npm run dev</pre>
+        <p>Open <strong>http://localhost:3000</strong> — you should see the homepage.</p>
+
+        <h3>Step 7 — Switch off DEMO_MODE</h3>
+        <p>In <code>public/js/app.js</code>, line 5, change:</p>
+        <pre>window.DEMO_MODE = true   // ← change to false</pre>
+        <p>Now the pages use real API data instead of mock data.</p>
+
+        <div class="tip green">
+          <span class="tip-icon">💡</span>
+          <div class="tip-body"><strong>Can't set up MySQL right now?</strong> No problem — open any HTML file directly in your browser. Everything works with DEMO_MODE=true. Build the UI first, wire the API later.</div>
+        </div>
+      </section>
+
+      <!-- GIT WORKFLOW -->
+      <section id="git">
+        <h2>🌿 Git Workflow</h2>
+        <div class="tip red">
+          <span class="tip-icon">🚫</span>
+          <div class="tip-body"><strong>Never push directly to main.</strong> Always create your own branch, push it, and ask someone to review before merging.</div>
+        </div>
+
+        <h3>Daily git flow — do this every time</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>Pull latest changes first</strong><br><code>git pull origin main</code></div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>Create your branch</strong><br><code>git checkout -b feature/xolani-mobile-nav</code><br>Use your name + what you're doing</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text"><strong>Make your changes. Save. Test in browser.</strong></div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-text"><strong>Add and commit</strong><br><code>git add .</code><br><code>git commit -m "feat: add mobile hamburger menu"</code></div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">5</div>
+            <div class="step-text"><strong>Push your branch</strong><br><code>git push origin feature/xolani-mobile-nav</code></div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">6</div>
+            <div class="step-text"><strong>Go to GitHub → open a Pull Request → ask Lindokuhle to merge it</strong></div>
+          </div>
+        </div>
+
+        <h3>Good commit message examples</h3>
+        <pre>feat: add search filter to directory page
+feat: wire register form to /api/auth/register
+fix: mobile layout breaks on iPhone 12
+fix: board posts not showing after refresh
+style: improve button hover states
+docs: update README setup instructions</pre>
+
+        <h3>What if you get a merge conflict?</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text"><code>git pull origin main</code> — pull the latest</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">Open the conflicting file — look for <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> markers</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">Keep the code you want, delete the conflict markers, save</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-text"><code>git add .</code> then <code>git commit -m "fix: resolve merge conflict"</code></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 24HR TIMELINE -->
+      <section id="timeline">
+        <h2>⏱ 24-Hour Build Timeline</h2>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-time">Hour 0–4</div>
+            <div class="tl-body">
+              <h4>🏗 Foundation</h4>
+              <ul>
+                <li>Everyone: clone repo, npm install, open in browser</li>
+                <li>Lindokuhle: set up MySQL, run schema + seed, confirm npm run dev works</li>
+                <li>Xolani: open index.html, start visual polish</li>
+                <li>All: agree on who is doing what, no overlap</li>
+              </ul>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">Hour 4–10</div>
+            <div class="tl-body">
+              <h4>🔍 Public Pages</h4>
+              <ul>
+                <li>Siyamthanda: test directory.html filters, wire to real API when ready</li>
+                <li>Xolani: polish index.html hero, categories, mobile layout</li>
+                <li>Lindokuhle: test all API endpoints with Postman or curl</li>
+                <li>Amahle: start wiring board.html respond flow to API</li>
+              </ul>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">Hour 10–16</div>
+            <div class="tl-body">
+              <h4>🤝 B2B Network</h4>
+              <ul>
+                <li>Amahle: wire network.html trade confirm to real API</li>
+                <li>Lindokuhle: wire join.html register + login to /api/auth/*</li>
+                <li>Siyamthanda: add more businesses to seed.js if needed</li>
+                <li>Lekgothe: start polishing pitch.html</li>
+              </ul>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">Hour 16–22</div>
+            <div class="tl-body">
+              <h4>🧪 Polish & Test</h4>
+              <ul>
+                <li>All: go through every page, test on mobile phone</li>
+                <li>Xolani: fix any mobile layout issues</li>
+                <li>Lekgothe: rehearse the demo script, time it (aim for 3 minutes)</li>
+                <li>Lekgothe: deploy backend to Railway, test live API</li>
+              </ul>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">Hour 22–24</div>
+            <div class="tl-body">
+              <h4>🚀 Final prep</h4>
+              <ul>
+                <li>Freeze code — no more feature changes</li>
+                <li>Lekgothe: verify Vercel is showing latest build</li>
+                <li>All: do the demo script once as a team dry run</li>
+                <li>All: get some sleep (at least 2 hours)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DEMO SCRIPT -->
+      <section id="demo">
+        <h2>🎤 Demo Script for Judges</h2>
+        <div class="tip green">
+          <span class="tip-icon">🎯</span>
+          <div class="tip-body"><strong>Target: 3 minutes max.</strong> Judges see many projects. Be fast, confident, show don't tell. Always open on <a href="pitch.html" style="color:var(--cobalt)">pitch.html</a> first.</div>
+        </div>
+
+        <h3>Opening (30 sec)</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>Open pitch.html</strong> — "This is SondelaBiz. Mdantsane has 170,000 people and a multi-billion rand township economy — but none of those businesses are findable online."</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">"We built two things: a public directory anyone can use, and a B2B trading network for registered businesses. Let me show you."</div>
+          </div>
+        </div>
+
+        <h3>Flow 1 — Public discovery (45 sec)</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>Go to directory.html</strong> — search "plumber"</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">Click <strong>Mthembeni Plumbing</strong> — show the profile modal: "4.7 stars, Silver badge, 41 completed trades — all verified"</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">Click <strong>WhatsApp</strong> button — "One tap. No app. No sign-up. The buyer is in Sandton, the plumber is in Mdantsane, they're talking in seconds."</div>
+          </div>
+        </div>
+
+        <h3>Flow 2 — B2B trading (90 sec)</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>Go to join.html</strong> — register as a new business (or use demo login)</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>Go to board.html</strong> — click "+ New Post" — post "I NEED: 50 bottles of shampoo. Budget R1,500. Urgent."</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">Show the need appears on the board. "Any supplier in Mdantsane can see this and respond."</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-text"><strong>Go to network.html</strong> — show the trade dashboard: "When someone responds, a trade record is created. Both parties confirm it here."</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">5</div>
+            <div class="step-text">Click <strong>Confirm</strong> on a trade — "Trade complete. That's +1 to their completed trades counter. Do this 50 times at 4.5 stars — you earn the Gold badge."</div>
+          </div>
+        </div>
+
+        <h3>Close (15 sec)</h3>
+        <p>Back to pitch.html — "Free to join. Boost from R10. Premium from R49/month. Five SDGs addressed. Built in 24 hours by a team of five first-timers from Mdantsane."</p>
+      </section>
+
+      <!-- API REFERENCE -->
+      <section id="api">
+        <h2>📡 API Reference</h2>
+        <div class="tip blue">
+          <span class="tip-icon">💡</span>
+          <div class="tip-body">All endpoints are at <code>http://localhost:3000/api/...</code> when running locally. Send <code>Authorization: Bearer YOUR_TOKEN</code> header for protected routes.</div>
+        </div>
+
+        <h3>Auth</h3>
+        <table class="hq-table">
+          <thead><tr><th>Method</th><th>Endpoint</th><th>Body</th><th>Returns</th></tr></thead>
+          <tbody>
+            <tr><td>POST</td><td>/api/auth/register</td><td>name, category, zone, whatsapp, password</td><td>{ token, business }</td></tr>
+            <tr><td>POST</td><td>/api/auth/login</td><td>whatsapp, password</td><td>{ token, business }</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Businesses</h3>
+        <table class="hq-table">
+          <thead><tr><th>Method</th><th>Endpoint</th><th>Auth?</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>GET</td><td>/api/businesses</td><td>No</td><td>Query: q, category, zone, limit, offset</td></tr>
+            <tr><td>GET</td><td>/api/businesses/:id</td><td>No</td><td>Includes offers, needs, reviews</td></tr>
+            <tr><td>GET</td><td>/api/businesses/me/profile</td><td>✅ Yes</td><td>Your own full profile</td></tr>
+            <tr><td>POST</td><td>/api/businesses/review/:id</td><td>✅ Yes</td><td>Body: rating (1–5), comment, transactionId</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Board</h3>
+        <table class="hq-table">
+          <thead><tr><th>Method</th><th>Endpoint</th><th>Auth?</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>GET</td><td>/api/board</td><td>No</td><td>Query: type=need|offer, limit, offset</td></tr>
+            <tr><td>POST</td><td>/api/board</td><td>✅ Yes</td><td>Body: type, title, description, budget, isUrgent</td></tr>
+            <tr><td>POST</td><td>/api/board/:id/respond</td><td>✅ Yes</td><td>Body: message. Auto-creates a transaction.</td></tr>
+            <tr><td>GET</td><td>/api/board/transactions</td><td>✅ Yes</td><td>All your trades (sent + received)</td></tr>
+            <tr><td>PATCH</td><td>/api/board/transactions/:id</td><td>✅ Yes</td><td>Body: status (pending/agreed/complete/cancelled)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>How to test with curl</h3>
+        <pre># Register a new business
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"My Salon","category":"salon","zone":"Unit 4","whatsapp":"27700000001","password":"test1234"}'
+
+# Login
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"whatsapp":"27641234567","password":"sondela123"}'
+
+# Get all businesses
+curl http://localhost:3000/api/businesses
+
+# Search for plumbers
+curl "http://localhost:3000/api/businesses?category=plumber"</pre>
+      </section>
+
+      <!-- DATABASE -->
+      <section id="database">
+        <h2>🗄 Database Tables</h2>
+        <table class="hq-table">
+          <thead><tr><th>Table</th><th>Purpose</th><th>Key columns</th></tr></thead>
+          <tbody>
+            <tr><td>businesses</td><td>Core business profiles + auth</td><td>id, name, category, zone, whatsapp, password_hash, trader_tier, rating, completed_deals</td></tr>
+            <tr><td>users</td><td>Auth accounts (linked to businesses)</td><td>id, business_id, role</td></tr>
+            <tr><td>categories</td><td>Category lookup (pre-seeded, 8 rows)</td><td>id, slug, name, icon, color</td></tr>
+            <tr><td>offers</td><td>Services each business provides</td><td>id, business_id, offer_text</td></tr>
+            <tr><td>requests</td><td>Things each business needs to source</td><td>id, business_id, title</td></tr>
+            <tr><td>board_posts</td><td>Public I NEED / I OFFER board</td><td>id, business_id, type, title, budget, is_urgent, response_count</td></tr>
+            <tr><td>board_responses</td><td>Replies to board posts</td><td>id, post_id, business_id, message</td></tr>
+            <tr><td>transactions</td><td>Trade records (pending → complete)</td><td>id, post_id, from_business_id, to_business_id, status, amount</td></tr>
+            <tr><td>reviews</td><td>Ratings that auto-update tier</td><td>id, business_id, author_business_id, rating, comment</td></tr>
+          </tbody>
+        </table>
+        <div class="tip blue">
+          <span class="tip-icon">⚡</span>
+          <div class="tip-body"><strong>MySQL trigger magic:</strong> Every time a review is inserted, a trigger automatically recalculates the average rating and updates the trader_tier. You don't need to write any code for this — the database handles it.</div>
+        </div>
+
+        <h3>Soft-delete rule</h3>
+        <p>We <strong>never hard-delete</strong> records. Every important table has a <code>deleted_at</code> column. To "delete" something:</p>
+        <pre>UPDATE board_posts SET deleted_at = NOW() WHERE id = ?;</pre>
+        <p>To query only active records, always filter: <code>WHERE deleted_at IS NULL</code></p>
+      </section>
+
+      <!-- TIPS & TRICKS -->
+      <section id="tips">
+        <h2>💡 Tips & Tricks for the Hackathon</h2>
+
+        <h3>General</h3>
+        <div class="tip green">
+          <span class="tip-icon">🏆</span>
+          <div class="tip-body"><strong>Working beats perfect.</strong> A page that works at 80% is worth 10x more than a perfect page that isn't finished. Ship it, then polish it.</div>
+        </div>
+        <div class="tip green">
+          <span class="tip-icon">🔄</span>
+          <div class="tip-body"><strong>Commit often.</strong> Every 30 minutes, <code>git add . && git commit -m "WIP: ..."</code>. You can always clean it up later. You can't recover code you lost.</div>
+        </div>
+        <div class="tip yellow">
+          <span class="tip-icon">📱</span>
+          <div class="tip-body"><strong>Test on your actual phone.</strong> Open Chrome Dev Tools → toggle device toolbar → select "iPhone 12" or "Galaxy S20". But also send the link to your phone and click around.</div>
+        </div>
+        <div class="tip blue">
+          <span class="tip-icon">🎯</span>
+          <div class="tip-body"><strong>Demo mode first.</strong> Make sure DEMO_MODE=true works perfectly before switching to the real API. Judges don't care if it's mock data — they care if it works.</div>
+        </div>
+
+        <h3>CSS tips</h3>
+        <div class="tip blue">
+          <span class="tip-icon">🎨</span>
+          <div class="tip-body"><strong>Use the design tokens.</strong> Don't type <code>#E040FB</code> — use <code>var(--fuchsia)</code>. All colours, spacing, and border-radius are already defined in <code>css/main.css</code>.</div>
+        </div>
+        <div class="tip blue">
+          <span class="tip-icon">📦</span>
+          <div class="tip-body"><strong>Reuse classes.</strong> <code>.glass</code>, <code>.btn btn-primary</code>, <code>.badge badge-fuchsia</code>, <code>.biz-card</code> — these are all ready. Don't reinvent them.</div>
+        </div>
+
+        <h3>JavaScript tips</h3>
+        <div class="tip blue">
+          <span class="tip-icon">🔧</span>
+          <div class="tip-body"><strong>Use window.toast().</strong> For any user feedback, call <code>window.toast('Your message here')</code>. It's already wired up in app.js.</div>
+        </div>
+        <div class="tip blue">
+          <span class="tip-icon">📡</span>
+          <div class="tip-body"><strong>Real API calls.</strong> Use the <code>Businesses</code>, <code>Board</code>, and <code>Auth</code> objects from <code>api.js</code>. Example: <code>const data = await Businesses.list({category:'salon'})</code></div>
+        </div>
+
+        <h3>For the presentation</h3>
+        <div class="tip green">
+          <span class="tip-icon">🎤</span>
+          <div class="tip-body"><strong>Tell the story first.</strong> "A plumber in Mdantsane has no website, no Google listing, no way for a Sandton contractor to find them. SondelaBiz fixes that." — THEN show the demo.</div>
+        </div>
+        <div class="tip green">
+          <span class="tip-icon">⏱</span>
+          <div class="tip-body"><strong>Practice the demo script out loud.</strong> 3 minutes feels long until you're in front of judges. Rehearse it twice as a team before the competition.</div>
+        </div>
+        <div class="tip yellow">
+          <span class="tip-icon">📊</span>
+          <div class="tip-body"><strong>Lead with impact numbers.</strong> "170,000 people. R2-billion economy. Zero platforms serving them." Say the numbers first, show the product second.</div>
+        </div>
+      </section>
+
+      <!-- COMMON ERRORS -->
+      <section id="errors">
+        <h2>🔴 Common Errors & Fixes</h2>
+        <table class="hq-table">
+          <thead><tr><th>Error</th><th>Fix</th></tr></thead>
+          <tbody class="err-row">
+            <tr>
+              <td>Cannot connect to MySQL</td>
+              <td>Check your .env file — is DB_PASSWORD correct? Is MySQL running? Run <code>mysql -u root -p</code> to test.</td>
+            </tr>
+            <tr>
+              <td>JWT_SECRET is not defined</td>
+              <td>Your .env file is missing or not loaded. Make sure it's in the project root, not inside server/.</td>
+            </tr>
+            <tr>
+              <td>Table doesn't exist</td>
+              <td>Run the schema again: <code>mysql -u root -p sondela_biz &lt; server/db/schema.sql</code></td>
+            </tr>
+            <tr>
+              <td>npm run dev: nodemon not found</td>
+              <td>Run <code>npm install</code> first.</td>
+            </tr>
+            <tr>
+              <td>Page is blank / white screen</td>
+              <td>Open browser Console (F12). Check for red errors. Usually a missing file path or JS syntax error.</td>
+            </tr>
+            <tr>
+              <td>window.renderBizCard is not a function</td>
+              <td>app.js hasn't loaded yet. Make sure <code>&lt;script src="js/app.js" type="module"&gt;</code> is in the &lt;body&gt; before your inline scripts.</td>
+            </tr>
+            <tr>
+              <td>CORS error in browser console</td>
+              <td>Your API call is going to the wrong URL. Check that BASE = '/api' in api.js (not localhost:3000/api).</td>
+            </tr>
+            <tr>
+              <td>Git: "rejected — non-fast-forward"</td>
+              <td>Someone else pushed to main. Pull first: <code>git pull origin main</code>, fix conflicts, then push again.</td>
+            </tr>
+            <tr>
+              <td>Vercel build failed</td>
+              <td>Check the Vercel dashboard for the error log. Usually a missing file. Push a fix commit to main and Vercel auto-redeploys.</td>
+            </tr>
+            <tr>
+              <td>CSS changes not showing</td>
+              <td>Hard reload: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac). Browser may be caching old CSS.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- HARD RULES -->
+      <section id="rules">
+        <h2>⚠️ Hard Rules — No Exceptions</h2>
+        <div class="tip red">
+          <span class="tip-icon">🚫</span>
+          <div class="tip-body"><strong>Rule 1:</strong> NEVER touch, modify, or commit the <code>.env</code> or <code>.env.local</code> files. Ever. On any project.</div>
+        </div>
+        <div class="tip red">
+          <span class="tip-icon">🚫</span>
+          <div class="tip-body"><strong>Rule 2:</strong> NEVER expose passwords, tokens, or API keys in client-side code (HTML, CSS, JS). These go in .env only.</div>
+        </div>
+        <div class="tip red">
+          <span class="tip-icon">🚫</span>
+          <div class="tip-body"><strong>Rule 3:</strong> NEVER hard-delete database records. Always use soft-delete: <code>UPDATE table SET deleted_at = NOW() WHERE id = ?</code></div>
+        </div>
+        <div class="tip red">
+          <span class="tip-icon">🚫</span>
+          <div class="tip-body"><strong>Rule 4:</strong> NEVER commit directly to <code>main</code>. Always use a branch. Always.</div>
+        </div>
+        <div class="tip yellow">
+          <span class="tip-icon">✅</span>
+          <div class="tip-body"><strong>When in doubt, ask Lindokuhle.</strong> They are the team lead and have the full context of the codebase.</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer style="padding:1.5rem 0;border-top:1px solid var(--border);margin-top:1rem">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem">
+    <div class="nav-logo" style="font-size:0.85rem">
+      <div class="nav-logo-mark" style="width:24px;height:24px;font-size:0.65rem">S</div>
+      SondelaBiz Team HQ
+    </div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap">
+      <a href="index.html" class="text-xs text-muted">Platform</a>
+      <a href="pitch.html" class="text-xs text-muted">Pitch</a>
+      <a href="https://github.com/Nanda-Regine/SondelaBiz" target="_blank" class="text-xs text-muted">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleNav() {
+    document.getElementById('hamburger').classList.toggle('open')
+    document.getElementById('nav-drawer').classList.toggle('open')
+  }
+
+  // Highlight active TOC link on scroll
+  const sections = document.querySelectorAll('section[id]')
+  const tocLinks  = document.querySelectorAll('.toc a')
+  window.addEventListener('scroll', () => {
+    let current = ''
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id
+    })
+    tocLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--fuchsia)' : ''
+      a.style.background = a.getAttribute('href') === '#' + current ? 'var(--surface-2)' : ''
+    })
+  }, { passive: true })
+</script>
+</body>
+</html>

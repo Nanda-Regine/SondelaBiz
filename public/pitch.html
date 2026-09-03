@@ -178,8 +178,20 @@
     <div class="nav-actions">
       <a href="index.html" class="btn btn-primary btn-sm">View Platform →</a>
     </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+<div class="nav-drawer" id="nav-drawer">
+  <ul>
+    <li><a href="directory.html">Platform Demo</a></li>
+    <li><a href="pitch.html" class="active">Pitch</a></li>
+  </ul>
+  <div class="nav-drawer-actions">
+    <a href="index.html" class="btn btn-primary btn-sm">View Platform →</a>
+  </div>
+</div>
 
 <!-- ── Cover ───────────────────────────────────────────────── -->
 <section class="pitch-cover container">
@@ -464,5 +476,11 @@
 </footer>
 
 <script src="js/app.js" type="module"></script>
+<script>
+  function toggleNav() {
+    document.getElementById('hamburger').classList.toggle('open')
+    document.getElementById('nav-drawer').classList.toggle('open')
+  }
+</script>
 </body>
 </html>
