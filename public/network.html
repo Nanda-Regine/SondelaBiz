@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Network — SondelaBiz</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    /* Dashboard grid */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 1.5rem;
+      padding-top: 1.5rem;
+      min-height: calc(100vh - 60px);
+    }
+    @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }
+
+    /* Sidebar */
+    .dash-sidebar {
+      position: sticky; top: 80px; height: fit-content;
+    }
+    .profile-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .profile-avatar {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, var(--fuchsia), var(--cobalt));
+      border-radius: 50%; border: 3px solid var(--border-bright);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.5rem; font-weight: 900; color: white;
+      margin: 0 auto 0.75rem;
+    }
+    .profile-name { font-family: 'Unbounded', sans-serif; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .profile-meta { font-size: 0.75rem; color: var(--text-3); margin-bottom: 0.75rem; }
+
+    .dash-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .dash-nav-btn {
+      display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: var(--r-sm);
+      background: none; border: none; cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.85rem; font-weight: 500;
+      color: var(--text-2); text-align: left;
+      transition: all 0.15s;
+    }
+    .dash-nav-btn:hover { background: var(--surface-2); color: var(--text-1); }
+    .dash-nav-btn.active { background: var(--fuchsia-dim); color: var(--fuchsia); }
+
+    /* Main content */
+    .dash-main { min-width: 0; }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 900px) { .stats-row { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .stats-row { grid-template-columns: 1fr; } }
+
+    .stat-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 1rem 1.25rem;
+    }
+    .stat-card .stat-val {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.5rem; font-weight: 900;
+      margin-bottom: 0.15rem;
+    }
+    .stat-card .stat-desc { font-size: 0.75rem; color: var(--text-3); }
+
+    /* Trade status chip */
+    .trade-status {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.2rem 0.6rem; border-radius: 100px;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .status-pending     { background: var(--volt-dim);    color: var(--volt); }
+    .status-agreed      { background: var(--cobalt-dim);  color: var(--cobalt); }
+    .status-complete    { background: var(--lime-dim);    color: var(--lime); }
+    .status-cancelled   { background: rgba(255,255,255,0.05); color: var(--text-3); }
+    .status-negotiating { background: var(--fuchsia-dim); color: var(--fuchsia); }
+
+    .trade-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 1rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .trade-card:hover { border-color: var(--border-bright); }
+
+    .trade-avatar {
+      width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+    }
+
+    /* Tab content panels */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Review form */
+    .review-stars { display: flex; gap: 0.25rem; cursor: pointer; margin-bottom: 0.75rem; }
+    .review-star { font-size: 1.6rem; color: var(--text-3); transition: color 0.1s; }
+    .review-star.lit { color: var(--volt); }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-mark">S</div> SondelaBiz
+    </a>
+    <ul class="nav-links">
+      <li><a href="directory.html">Find Business</a></li>
+      <li><a href="board.html">I Need / I Offer</a></li>
+      <li><a href="network.html" class="active">My Network</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="btn btn-glass btn-sm" onclick="logout()">Log out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="dashboard">
+    <!-- ── Sidebar ── -->
+    <aside class="dash-sidebar">
+      <div class="profile-card">
+        <div class="profile-avatar" id="profile-avatar">M</div>
+        <div class="profile-name" id="profile-name">My Business</div>
+        <div class="profile-meta" id="profile-meta">Unit 4 · Salon</div>
+        <div style="margin:0.5rem 0">
+          <span class="badge tier-gold" id="profile-tier">🥇 Gold Trader</span>
+        </div>
+        <div class="rating" style="justify-content:center">
+          <span class="rating-stars">★★★★★</span>
+          <span id="profile-rating">4.9</span>
+        </div>
+      </div>
+
+      <!-- Trust score -->
+      <div class="glass-sm" style="padding:0.9rem;margin-bottom:1rem">
+        <div class="text-xs text-dim" style="margin-bottom:0.6rem;letter-spacing:0.05em;text-transform:uppercase">Trust Score</div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem">
+          <div class="trust-item good">✓ <span id="score-trades">74 Completed Trades</span></div>
+          <div class="trust-item good">⭐ <span id="score-rating">4.9 Avg Rating</span></div>
+          <div class="trust-item good">✓ Trusted Business</div>
+        </div>
+      </div>
+      <style>.trust-item{display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--text-2)}.trust-item.good{color:var(--lime)}</style>
+
+      <div class="dash-nav">
+        <button class="dash-nav-btn active" onclick="showPanel('overview')">📊 Overview</button>
+        <button class="dash-nav-btn" onclick="showPanel('trades')">🤝 My Trades</button>
+        <button class="dash-nav-btn" onclick="showPanel('board')">📋 My Posts</button>
+        <button class="dash-nav-btn" onclick="showPanel('profile')">✏️ Edit Profile</button>
+      </div>
+    </aside>
+
+    <!-- ── Main content ── -->
+    <main class="dash-main">
+
+      <!-- Overview panel -->
+      <div class="panel active" id="panel-overview">
+        <h2 style="font-size:1.1rem;margin-bottom:1.25rem">Dashboard</h2>
+
+        <div class="stats-row">
+          <div class="stat-card glow-fuchsia-sm">
+            <div class="stat-val grad-fuchsia-cobalt" id="stat-deals">74</div>
+            <div class="stat-desc">Completed Trades</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color:var(--volt)" id="stat-rating">4.9★</div>
+            <div class="stat-desc">Avg Rating</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color:var(--lime)" id="stat-reviews">62</div>
+            <div class="stat-desc">Reviews</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color:var(--cobalt)">2</div>
+            <div class="stat-desc">Active Posts</div>
+          </div>
+        </div>
+
+        <!-- Recent activity -->
+        <div style="margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between">
+          <h3 style="font-size:0.9rem">Recent Trades</h3>
+          <button class="btn btn-glass btn-sm" onclick="showPanel('trades')">View all</button>
+        </div>
+        <div id="overview-trades"></div>
+
+        <!-- Quick actions -->
+        <div style="margin-top:1.5rem">
+          <h3 style="font-size:0.9rem;margin-bottom:0.75rem">Quick Actions</h3>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+            <a href="board.html" class="btn btn-primary btn-sm">+ Post to Board</a>
+            <a href="directory.html" class="btn btn-glass btn-sm">Find a Business</a>
+            <button class="btn btn-glass btn-sm" onclick="showPanel('profile')">Edit Profile</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trades panel -->
+      <div class="panel" id="panel-trades">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+          <h2 style="font-size:1.1rem">My Trades</h2>
+          <div style="display:flex;gap:0.5rem">
+            <button class="btn btn-glass btn-sm" id="trades-filter-all"     onclick="filterTrades('all')">All</button>
+            <button class="btn btn-glass btn-sm" id="trades-filter-pending" onclick="filterTrades('pending')">Pending</button>
+            <button class="btn btn-glass btn-sm" id="trades-filter-complete" onclick="filterTrades('complete')">Complete</button>
+          </div>
+        </div>
+        <div id="trades-list"></div>
+      </div>
+
+      <!-- My posts panel -->
+      <div class="panel" id="panel-board">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+          <h2 style="font-size:1.1rem">My Board Posts</h2>
+          <a href="board.html" class="btn btn-primary btn-sm">+ New Post</a>
+        </div>
+        <div id="my-posts-list"></div>
+      </div>
+
+      <!-- Edit profile panel -->
+      <div class="panel" id="panel-profile">
+        <h2 style="font-size:1.1rem;margin-bottom:1.25rem">Edit Profile</h2>
+        <div style="max-width:440px;display:flex;flex-direction:column;gap:1rem">
+          <div>
+            <div class="field-label" style="font-size:0.78rem;font-weight:600;color:var(--text-2);margin-bottom:0.4rem">Business Name</div>
+            <input type="text" class="input" id="edit-name" placeholder="ABC Salon">
+          </div>
+          <div>
+            <div class="field-label" style="font-size:0.78rem;font-weight:600;color:var(--text-2);margin-bottom:0.4rem">Tagline</div>
+            <input type="text" class="input" id="edit-tagline" placeholder="One-sentence description">
+          </div>
+          <div>
+            <div class="field-label" style="font-size:0.78rem;font-weight:600;color:var(--text-2);margin-bottom:0.4rem">WhatsApp Contact</div>
+            <input type="tel" class="input" id="edit-wa" placeholder="27712345678">
+          </div>
+          <div>
+            <div class="field-label" style="font-size:0.78rem;font-weight:600;color:var(--text-2);margin-bottom:0.4rem">Physical Address</div>
+            <input type="text" class="input" id="edit-address" placeholder="Unit 4, near Spar">
+          </div>
+          <button class="btn btn-primary" style="width:fit-content" onclick="saveProfile()">Save Changes</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/app.js" type="module"></script>
+<script>
+  // ── Auth guard ─────────────────────────────────────────────
+  const me = JSON.parse(localStorage.getItem('sb_me') || 'null')
+  if (!localStorage.getItem('sb_token')) {
+    window.location.href = 'join.html'
+  }
+
+  // ── Demo trade data ────────────────────────────────────────
+  const MOCK_TRADES = [
+    { id: 1, title: 'Hair extensions bulk order', from_name: "Mama Thandiwe's Salon", to_name: 'Hair Supplies Co.', status: 'complete', amount: 1200 },
+    { id: 2, title: 'Braiding client referrals', from_name: "Mama Thandiwe's Salon", to_name: 'Mthembeni Plumbing', status: 'pending', amount: null },
+    { id: 3, title: 'Nail technician contract', from_name: "Mama Thandiwe's Salon", to_name: 'Bright Sparks Nails', status: 'agreed', amount: 3500 },
+    { id: 4, title: 'Relaxer products restock', from_name: "Mama Thandiwe's Salon", to_name: 'KasiGarage Motors', status: 'negotiating', amount: 800 },
+  ]
+
+  const MOCK_POSTS = [
+    { id: 1, type: 'need', title: 'Need 50+ braiding client referrals', is_urgent: true, response_count: 3 },
+    { id: 2, type: 'offer', title: 'Professional braiding specials — R80', is_urgent: false, response_count: 7 },
+  ]
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Populate profile from localStorage
+    if (me) {
+      const n = me.name || 'My Business'
+      document.getElementById('profile-avatar').textContent = n.charAt(0).toUpperCase()
+      document.getElementById('profile-name').textContent   = n
+    }
+
+    renderOverviewTrades()
+    renderTradesList(MOCK_TRADES)
+    renderMyPosts()
+  })
+
+  // ── Panel switching ────────────────────────────────────────
+  function showPanel(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'))
+    document.querySelectorAll('.dash-nav-btn').forEach(b => b.classList.remove('active'))
+    document.getElementById('panel-' + id).classList.add('active')
+    const map = { overview: 0, trades: 1, board: 2, profile: 3 }
+    const btns = document.querySelectorAll('.dash-nav-btn')
+    btns[map[id]]?.classList.add('active')
+  }
+
+  // ── Render overview trades ─────────────────────────────────
+  function renderOverviewTrades() {
+    const el = document.getElementById('overview-trades')
+    el.innerHTML = MOCK_TRADES.slice(0, 3).map(t => tradeCard(t)).join('')
+  }
+
+  function renderTradesList(data) {
+    document.getElementById('trades-list').innerHTML =
+      data.length ? data.map(tradeCard).join('') : '<p class="text-muted text-sm">No trades yet.</p>'
+  }
+
+  function tradeCard(t) {
+    const statusMap = { pending: 'status-pending', agreed: 'status-agreed', complete: 'status-complete', cancelled: 'status-cancelled', negotiating: 'status-negotiating' }
+    const isFromMe = t.from_name?.includes('Thandiwe') || t.from_name?.includes('My')
+    const other = isFromMe ? t.to_name : t.from_name
+    return `
+      <div class="trade-card">
+        <div class="trade-avatar">🤝</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:0.88rem;margin-bottom:0.2rem">${t.title}</div>
+          <div class="text-xs text-muted">${other}</div>
+        </div>
+        ${t.amount ? `<span class="badge badge-volt text-xs">R${Number(t.amount).toLocaleString()}</span>` : ''}
+        <div class="trade-status ${statusMap[t.status] || ''}">${t.status}</div>
+        ${t.status === 'pending' || t.status === 'agreed' ?
+          `<button class="btn btn-glass btn-sm" onclick="confirmTrade(${t.id})">Confirm</button>` : ''}
+      </div>`
+  }
+
+  function filterTrades(f) {
+    const data = f === 'all' ? MOCK_TRADES : MOCK_TRADES.filter(t => t.status === f)
+    renderTradesList(data)
+  }
+
+  function confirmTrade(id) {
+    const t = MOCK_TRADES.find(x => x.id === id)
+    if (t) t.status = 'complete'
+    renderTradesList(MOCK_TRADES)
+    renderOverviewTrades()
+    window.toast && window.toast('✓ Trade confirmed! 🎉')
+  }
+
+  function renderMyPosts() {
+    document.getElementById('my-posts-list').innerHTML = MOCK_POSTS.map(p => `
+      <div class="glass-sm" style="padding:1rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:1rem">
+        <span class="badge ${p.type === 'need' ? 'badge-crimson' : 'badge-lime'}">${p.type === 'need' ? '🔴 Need' : '🟢 Offer'}</span>
+        <span style="flex:1;font-size:0.88rem;font-weight:500">${p.title}</span>
+        ${p.is_urgent ? '<span class="badge badge-crimson">Urgent</span>' : ''}
+        <span class="badge badge-muted">${p.response_count} replies</span>
+        <button class="btn btn-glass btn-sm" onclick="window.toast && window.toast('Post removed (demo)')">Remove</button>
+      </div>`).join('')
+  }
+
+  function saveProfile() {
+    window.toast && window.toast('Profile saved! ✓')
+  }
+
+  function logout() {
+    localStorage.removeItem('sb_token')
+    localStorage.removeItem('sb_me')
+    window.location.href = 'index.html'
+  }
+</script>
+</body>
+</html>

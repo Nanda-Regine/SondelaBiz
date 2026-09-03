@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find a Business — SondelaBiz</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    .dir-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 1.5rem;
+      padding-top: 1.5rem;
+    }
+    @media (max-width: 768px) { .dir-layout { grid-template-columns: 1fr; } }
+
+    /* Sidebar */
+    .dir-sidebar { position: sticky; top: 80px; height: fit-content; }
+    .filter-section { margin-bottom: 1.5rem; }
+    .filter-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 0.6rem; }
+    .filter-btn {
+      display: block; width: 100%;
+      text-align: left; padding: 0.55rem 0.9rem;
+      background: none; border: 1px solid transparent;
+      border-radius: var(--r-sm); cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.85rem; color: var(--text-2);
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { background: var(--surface-2); color: var(--text-1); }
+    .filter-btn.active {
+      background: var(--fuchsia-dim); color: var(--fuchsia);
+      border-color: rgba(224,64,251,0.25);
+    }
+
+    /* Results header */
+    .results-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Profile modal overlay */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(6,6,8,0.7);
+      backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #0e0e12;
+      border: 1px solid var(--border-bright);
+      border-radius: var(--r-xl);
+      max-width: 540px; width: 100%;
+      max-height: 88vh; overflow-y: auto;
+      padding: 2rem;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 50%; width: 32px; height: 32px;
+      cursor: pointer; color: var(--text-2); font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { color: var(--text-1); }
+
+    /* Trust score card */
+    .trust-score {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 1rem;
+      display: flex; gap: 0.75rem; flex-wrap: wrap;
+    }
+    .trust-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--text-2); }
+    .trust-item.good { color: var(--lime); }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-mark">S</div> SondelaBiz
+    </a>
+    <ul class="nav-links">
+      <li><a href="directory.html" class="active">Find Business</a></li>
+      <li><a href="board.html">I Need / I Offer</a></li>
+      <li><a href="network.html">My Network</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a id="nav-login" href="join.html" class="btn btn-glass btn-sm">Log in</a>
+      <a href="join.html" class="btn btn-primary btn-sm">Register Free</a>
+      <a id="nav-dashboard" href="network.html" class="btn btn-primary btn-sm" style="display:none">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <!-- Top search bar -->
+  <div style="padding: 1.75rem 0 0">
+    <h1 style="font-size:clamp(1.4rem,3vw,2rem);margin-bottom:1rem">Find a Business in Mdantsane</h1>
+    <div class="search-wrap" style="max-width:520px">
+      <svg width="16" height="16" fill="none" stroke="var(--text-3)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search-input" type="text" placeholder="Search hair, plumber, electrician…">
+      <button class="btn btn-primary btn-sm" onclick="runSearch()">Search</button>
+    </div>
+  </div>
+
+  <div class="dir-layout">
+    <!-- ── Sidebar ── -->
+    <aside class="dir-sidebar">
+      <div class="filter-section">
+        <div class="filter-label">Category</div>
+        <button class="filter-btn active" data-cat="" onclick="setFilter('cat','')">All categories</button>
+        <div id="cat-filters"></div>
+      </div>
+      <div class="filter-section">
+        <div class="filter-label">Zone / Area</div>
+        <button class="filter-btn active" data-zone="" onclick="setFilter('zone','')">All zones</button>
+        <button class="filter-btn" data-zone="Unit 2"    onclick="setFilter('zone','Unit 2')">Unit 2</button>
+        <button class="filter-btn" data-zone="Unit 3"    onclick="setFilter('zone','Unit 3')">Unit 3</button>
+        <button class="filter-btn" data-zone="Unit 4"    onclick="setFilter('zone','Unit 4')">Unit 4</button>
+        <button class="filter-btn" data-zone="Unit 5"    onclick="setFilter('zone','Unit 5')">Unit 5</button>
+        <button class="filter-btn" data-zone="Unit 12"   onclick="setFilter('zone','Unit 12')">Unit 12</button>
+        <button class="filter-btn" data-zone="Unit 2 Hi-Way" onclick="setFilter('zone','Unit 2 Hi-Way')">Hi-Way</button>
+      </div>
+      <div class="filter-section">
+        <div class="filter-label">Tier</div>
+        <button class="filter-btn active" data-tier=""      onclick="setFilter('tier','')">All tiers</button>
+        <button class="filter-btn" data-tier="gold"   onclick="setFilter('tier','gold')">🥇 Gold only</button>
+        <button class="filter-btn" data-tier="silver" onclick="setFilter('tier','silver')">🥈 Silver+</button>
+      </div>
+    </aside>
+
+    <!-- ── Results ── -->
+    <main>
+      <div class="results-bar">
+        <span class="text-sm text-muted" id="results-count">Loading…</span>
+        <span class="badge badge-fuchsia" id="active-filter-label" style="display:none"></span>
+      </div>
+      <div class="grid-auto" id="results-grid"></div>
+      <div id="empty-state" style="display:none;text-align:center;padding:3rem 0">
+        <p style="font-size:2rem">🔍</p>
+        <p class="text-muted mt-sm">No businesses found. Try a different search or filter.</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ── Business profile modal ──────────────────────────────── -->
+<div class="modal-overlay" id="profile-modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-inner">
+    <button class="modal-close" onclick="closeProfile()">✕</button>
+    <div id="modal-content">Loading…</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/app.js" type="module"></script>
+<script>
+  let filters = { cat: '', zone: '', tier: '', q: '' }
+  let allBizs = []
+
+  // Read URL params on load
+  const params = new URLSearchParams(location.search)
+  if (params.get('q'))        filters.q   = params.get('q')
+  if (params.get('category')) filters.cat = params.get('category')
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Build cat filter buttons
+    const catBox = document.getElementById('cat-filters')
+    ;(window.CATEGORIES || []).forEach(c => {
+      const btn = document.createElement('button')
+      btn.className = 'filter-btn'
+      btn.dataset.cat = c.id
+      btn.textContent = `${c.icon} ${c.label}`
+      btn.onclick = () => setFilter('cat', c.id)
+      if (filters.cat === c.id) { btn.classList.add('active') }
+      catBox.appendChild(btn)
+    })
+
+    if (filters.q) document.getElementById('search-input').value = filters.q
+
+    allBizs = window.MOCK_BUSINESSES || []
+    renderResults()
+
+    // Check for direct id link
+    const id = params.get('id')
+    if (id) {
+      const biz = allBizs.find(b => b.id == id)
+      if (biz) showProfile(biz)
+    }
+  })
+
+  function runSearch() {
+    filters.q = document.getElementById('search-input').value.trim()
+    renderResults()
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.activeElement?.id === 'search-input') runSearch()
+  })
+
+  function setFilter(type, val) {
+    filters[type] = val
+
+    // Update button active states
+    const attr = type === 'cat' ? 'cat' : type
+    document.querySelectorAll(`[data-${attr}]`).forEach(b => {
+      b.classList.toggle('active', b.dataset[attr] === val)
+    })
+    renderResults()
+  }
+
+  function renderResults() {
+    let data = [...allBizs]
+    if (filters.cat)  data = data.filter(b => b.category === filters.cat)
+    if (filters.zone) data = data.filter(b => b.zone === filters.zone)
+    if (filters.tier) {
+      const order = ['new','bronze','silver','gold']
+      const minIdx = order.indexOf(filters.tier)
+      data = data.filter(b => order.indexOf(b.trader_tier) >= minIdx)
+    }
+    if (filters.q) {
+      const q = filters.q.toLowerCase()
+      data = data.filter(b =>
+        b.name.toLowerCase().includes(q) ||
+        b.tagline?.toLowerCase().includes(q) ||
+        b.category?.toLowerCase().includes(q) ||
+        b.offers?.some(o => o.toLowerCase().includes(q))
+      )
+    }
+
+    const grid  = document.getElementById('results-grid')
+    const empty = document.getElementById('empty-state')
+    const count = document.getElementById('results-count')
+    count.textContent = `${data.length} business${data.length !== 1 ? 'es' : ''} found`
+
+    if (data.length === 0) {
+      grid.innerHTML = ''
+      empty.style.display = 'block'
+    } else {
+      empty.style.display = 'none'
+      grid.innerHTML = data.map(b => {
+        const tier = b.trader_tier || 'new'
+        return `
+          <article class="biz-card" onclick="showProfile(${JSON.stringify(b).split('"').join('&quot;')})">
+            <div style="display:flex;align-items:center;gap:0.75rem">
+              <div class="biz-card-icon">${b.icon || '🏢'}</div>
+              <div>
+                <div class="biz-card-name">${b.name}</div>
+                <div class="biz-card-meta">${b.zone || ''}</div>
+              </div>
+            </div>
+            <div class="biz-card-tagline">${b.tagline || ''}</div>
+            ${b.offers?.length ? `<div class="biz-card-tags">${b.offers.slice(0,3).map(o => `<span class="badge badge-muted">${o}</span>`).join('')}</div>` : ''}
+            <div class="biz-card-footer">
+              <span class="badge tier-${tier}">${window.tierLabel ? window.tierLabel(tier) : tier}</span>
+              <div class="rating" style="margin-left:auto">
+                <span class="rating-stars">★</span>
+                <span>${(b.rating||0).toFixed(1)} (${b.review_count||0})</span>
+              </div>
+            </div>
+            <a href="https://wa.me/${b.whatsapp}" target="_blank" rel="noopener"
+               class="btn btn-wa btn-sm" style="margin-top:0.25rem" onclick="event.stopPropagation()">
+              <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Connect
+            </a>
+          </article>`
+      }).join('')
+    }
+  }
+
+  // ── Profile modal ──────────────────────────────────────────
+  function showProfile(biz) {
+    if (typeof biz === 'string') biz = JSON.parse(biz)
+    const tier = biz.trader_tier || 'new'
+    document.getElementById('modal-content').innerHTML = `
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem">
+        <div class="biz-card-icon" style="width:56px;height:56px;font-size:1.6rem">${biz.icon||'🏢'}</div>
+        <div>
+          <h3 style="font-size:1.1rem">${biz.name}</h3>
+          <div class="text-muted text-sm">${biz.category} · ${biz.zone||''}</div>
+        </div>
+        <span class="badge tier-${tier}" style="margin-left:auto">${window.tierLabel ? window.tierLabel(tier) : tier}</span>
+      </div>
+      <div class="trust-score" style="margin-bottom:1.25rem">
+        <div class="trust-item good">✓ ${biz.completed_deals||0} Completed Trades</div>
+        <div class="trust-item good">⭐ ${(biz.rating||0).toFixed(1)} Rating (${biz.review_count||0} reviews)</div>
+        ${biz.verified ? '<div class="trust-item good">✓ Verified Business</div>' : ''}
+      </div>
+      <p class="text-muted text-sm" style="margin-bottom:1.25rem">${biz.tagline||''}</p>
+      ${biz.offers?.length ? `
+        <div style="margin-bottom:1rem">
+          <div class="filter-label">Services offered</div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem">
+            ${biz.offers.map(o => `<span class="badge badge-lime">${o}</span>`).join('')}
+          </div>
+        </div>` : ''}
+      ${biz.needs?.length ? `
+        <div style="margin-bottom:1.25rem">
+          <div class="filter-label">Looking to source</div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem">
+            ${biz.needs.map(n => `<span class="badge badge-crimson">${n}</span>`).join('')}
+          </div>
+        </div>` : ''}
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+        <a href="https://wa.me/${biz.whatsapp}" target="_blank" rel="noopener" class="btn btn-wa">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+        ${biz.phone ? `<a href="tel:${biz.phone}" class="btn btn-glass">${biz.phone}</a>` : ''}
+      </div>`
+    document.getElementById('profile-modal').classList.add('open')
+  }
+  function closeProfile() {
+    document.getElementById('profile-modal').classList.remove('open')
+  }
+  function closeModal(e) {
+    if (e.target === document.getElementById('profile-modal')) closeProfile()
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeProfile() })
+</script>
+</body>
+</html>

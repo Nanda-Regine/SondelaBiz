@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Your Business — SondelaBiz</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    .join-wrap {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    @media (max-width: 768px) {
+      .join-wrap { grid-template-columns: 1fr; }
+      .join-left  { display: none; }
+    }
+
+    /* Left info panel */
+    .join-left {
+      background: linear-gradient(160deg, rgba(224,64,251,0.1), rgba(41,121,255,0.07));
+      border-right: 1px solid var(--border);
+      padding: 2.5rem;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .join-left h2 { font-size: 1.6rem; margin-bottom: 1rem; }
+    .benefit-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }
+    .benefit-list li { display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.88rem; color: var(--text-2); }
+    .benefit-icon { width: 22px; height: 22px; border-radius: 50%; background: var(--fuchsia-dim); border: 1px solid rgba(224,64,251,0.3); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* Right form panel */
+    .join-right {
+      padding: 2.5rem;
+      display: flex; flex-direction: column; justify-content: center;
+      max-width: 480px;
+    }
+    @media (min-width: 769px) { .join-right { padding: 3rem; } }
+
+    /* Step indicator */
+    .steps {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .step-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: var(--text-3);
+      transition: all 0.3s;
+    }
+    .step-dot.active { background: var(--fuchsia); border-color: var(--fuchsia); color: white; }
+    .step-dot.done   { background: var(--lime-dim); border-color: rgba(0,230,118,0.3); color: var(--lime); }
+    .step-line { flex: 1; height: 1px; background: var(--border); }
+
+    .field-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+    .field-label { font-size: 0.78rem; font-weight: 600; color: var(--text-2); }
+
+    select.input { cursor: pointer; -webkit-appearance: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='rgba(255,255,255,0.35)' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.9rem center; padding-right: 2.5rem; }
+
+    /* Tabs login / register */
+    .auth-tabs { display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--r-sm); overflow: hidden; margin-bottom: 1.75rem; }
+    .auth-tab {
+      flex: 1; text-align: center; padding: 0.6rem; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; color: var(--text-2);
+      background: none; border: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .auth-tab.active { background: var(--surface-2); color: var(--text-1); }
+
+    /* Trust preview */
+    .trust-preview {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 1rem 1.25rem;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="join-wrap">
+  <!-- ── Left panel ── -->
+  <div class="join-left">
+    <a href="index.html" class="nav-logo" style="margin-bottom:2rem">
+      <div class="nav-logo-mark">S</div> SondelaBiz
+    </a>
+    <h2>Join Mdantsane's<br><span class="grad-fuchsia-cobalt">Business Network</span></h2>
+    <ul class="benefit-list">
+      <li><span class="benefit-icon">✓</span> <span>Get discovered by businesses and customers looking for your services</span></li>
+      <li><span class="benefit-icon">✓</span> <span>Post needs and offers on the B2B board — connect with suppliers</span></li>
+      <li><span class="benefit-icon">✓</span> <span>Earn your Trusted Trader badge as you complete more deals</span></li>
+      <li><span class="benefit-icon">✓</span> <span>WhatsApp-first contact — zero friction, no app download needed</span></li>
+      <li><span class="benefit-icon">✓</span> <span>100% free to join. Boost plans from R10.</span></li>
+    </ul>
+
+    <!-- Tier preview -->
+    <div class="trust-preview" style="margin-top:2rem">
+      <div class="text-xs text-dim" style="margin-bottom:0.5rem;letter-spacing:0.05em;text-transform:uppercase">Trusted Trader Path</div>
+      <div style="display:flex;gap:0.35rem;flex-wrap:wrap">
+        <span class="badge tier-new">New</span>
+        <span style="color:var(--text-3)">→</span>
+        <span class="badge tier-bronze">Bronze</span>
+        <span style="color:var(--text-3)">→</span>
+        <span class="badge tier-silver">Silver</span>
+        <span style="color:var(--text-3)">→</span>
+        <span class="badge tier-gold">Gold</span>
+      </div>
+      <p class="text-xs text-muted" style="margin-top:0.5rem">Badges are earned through verified trades and real customer ratings.</p>
+    </div>
+  </div>
+
+  <!-- ── Right form panel ── -->
+  <div class="join-right">
+    <!-- Auth tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-register" onclick="showTab('register')">Register Free</button>
+      <button class="auth-tab"         id="tab-login"    onclick="showTab('login')">Log In</button>
+    </div>
+
+    <!-- ── REGISTRATION (2 steps) ── -->
+    <div id="register-form">
+      <!-- Steps indicator -->
+      <div class="steps">
+        <div class="step-dot active" id="dot-1">1</div>
+        <div class="step-line"></div>
+        <div class="step-dot"        id="dot-2">2</div>
+      </div>
+
+      <!-- Step 1: Business basics -->
+      <div id="step-1">
+        <h2 style="font-size:1.3rem;margin-bottom:0.25rem">Business details</h2>
+        <p class="text-sm text-muted" style="margin-bottom:1.5rem">Tell us about your business</p>
+
+        <div class="field-group">
+          <label class="field-label" for="biz-name">Business Name *</label>
+          <input id="biz-name" type="text" class="input" placeholder="e.g. ABC Salon">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="biz-category">Category *</label>
+          <select id="biz-category" class="input">
+            <option value="">Select category…</option>
+            <option value="salon">Hair & Beauty</option>
+            <option value="plumber">Plumbing</option>
+            <option value="electrician">Electrical</option>
+            <option value="mechanic">Auto & Mechanics</option>
+            <option value="vendor">Fresh Produce</option>
+            <option value="catering">Catering</option>
+            <option value="retail">Retail & Spaza</option>
+            <option value="transport">Transport</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="biz-zone">Location (Mdantsane Zone) *</label>
+          <select id="biz-zone" class="input">
+            <option value="">Select zone…</option>
+            <option>Unit 2</option><option>Unit 2 Hi-Way</option><option>Unit 3</option>
+            <option>Unit 4</option><option>Unit 5</option><option>Unit 6</option>
+            <option>Unit 7</option><option>Unit 8</option><option>Unit 9</option>
+            <option>Unit 10</option><option>Unit 11</option><option>Unit 12</option>
+            <option>Unit 14</option><option>Unit 15</option><option>Unit 21</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="biz-tagline">Tagline (one sentence)</label>
+          <input id="biz-tagline" type="text" class="input" placeholder="e.g. Fast, affordable hair braiding in Unit 4">
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem" onclick="goStep2()">
+          Next — Contact details →
+        </button>
+      </div>
+
+      <!-- Step 2: Contact + password -->
+      <div id="step-2" style="display:none">
+        <h2 style="font-size:1.3rem;margin-bottom:0.25rem">Contact & login</h2>
+        <p class="text-sm text-muted" style="margin-bottom:1.5rem">How customers and businesses will reach you</p>
+
+        <div class="field-group">
+          <label class="field-label" for="biz-whatsapp">WhatsApp Number * <span class="text-dim">(27XXXXXXXXX)</span></label>
+          <input id="biz-whatsapp" type="tel" class="input" placeholder="27712345678">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="biz-phone">Phone Number (optional)</label>
+          <input id="biz-phone" type="tel" class="input" placeholder="07X XXX XXXX">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="biz-password">Password *</label>
+          <input id="biz-password" type="password" class="input" placeholder="Min. 8 characters">
+        </div>
+
+        <div style="display:flex;gap:0.75rem;margin-top:0.75rem">
+          <button class="btn btn-glass" onclick="goStep1()">← Back</button>
+          <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="submitRegister()">
+            Register Free →
+          </button>
+        </div>
+
+        <p class="text-xs text-dim" style="margin-top:1rem;text-align:center">
+          By registering you agree to our terms. Free forever — no card needed.
+        </p>
+      </div>
+    </div><!-- /register-form -->
+
+    <!-- ── LOGIN FORM ── -->
+    <div id="login-form" style="display:none">
+      <h2 style="font-size:1.3rem;margin-bottom:0.25rem">Welcome back</h2>
+      <p class="text-sm text-muted" style="margin-bottom:1.5rem">Log in with your WhatsApp number</p>
+
+      <div class="field-group">
+        <label class="field-label" for="login-whatsapp">WhatsApp Number</label>
+        <input id="login-whatsapp" type="tel" class="input" placeholder="27712345678">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="login-password">Password</label>
+        <input id="login-password" type="password" class="input" placeholder="Your password">
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.75rem" onclick="submitLogin()">
+        Log In
+      </button>
+
+      <p class="text-xs text-muted" style="margin-top:1rem;text-align:center">
+        Demo: any number from the seed + password <code style="background:var(--surface-2);padding:0.1rem 0.4rem;border-radius:4px">sondela123</code>
+      </p>
+    </div><!-- /login-form -->
+
+    <!-- Success state -->
+    <div id="success-state" style="display:none;text-align:center;padding:1rem 0">
+      <div style="font-size:3rem;margin-bottom:1rem">🎉</div>
+      <h2 style="font-size:1.2rem;margin-bottom:0.5rem">You're in!</h2>
+      <p class="text-muted text-sm" style="margin-bottom:1.5rem">Your business is now on SondelaBiz.</p>
+      <a href="network.html" class="btn btn-primary" style="justify-content:center">Go to Dashboard →</a>
+    </div>
+  </div>
+</div><!-- /join-wrap -->
+
+<div id="toast"></div>
+
+<script src="js/app.js" type="module"></script>
+<script>
+  function showTab(tab) {
+    document.getElementById('register-form').style.display = tab === 'register' ? '' : 'none'
+    document.getElementById('login-form').style.display    = tab === 'login'    ? '' : 'none'
+    document.getElementById('tab-register').classList.toggle('active', tab === 'register')
+    document.getElementById('tab-login').classList.toggle('active',    tab === 'login')
+  }
+
+  function goStep2() {
+    const name = document.getElementById('biz-name').value.trim()
+    const cat  = document.getElementById('biz-category').value
+    const zone = document.getElementById('biz-zone').value
+    if (!name || !cat || !zone) { window.toast && window.toast('Please fill in all required fields'); return }
+    document.getElementById('step-1').style.display = 'none'
+    document.getElementById('step-2').style.display = ''
+    document.getElementById('dot-1').className = 'step-dot done'
+    document.getElementById('dot-2').className = 'step-dot active'
+  }
+  function goStep1() {
+    document.getElementById('step-2').style.display = 'none'
+    document.getElementById('step-1').style.display = ''
+    document.getElementById('dot-1').className = 'step-dot active'
+    document.getElementById('dot-2').className = 'step-dot'
+  }
+
+  function submitRegister() {
+    const wa  = document.getElementById('biz-whatsapp').value.trim()
+    const pw  = document.getElementById('biz-password').value
+    if (!wa)           { window.toast && window.toast('WhatsApp number is required'); return }
+    if (pw.length < 8) { window.toast && window.toast('Password must be at least 8 characters'); return }
+
+    // Demo mode: simulate success
+    localStorage.setItem('sb_token', 'demo-token-' + Date.now())
+    localStorage.setItem('sb_me', JSON.stringify({ name: document.getElementById('biz-name').value, tier: 'new' }))
+    document.getElementById('register-form').style.display = 'none'
+    document.getElementById('success-state').style.display = ''
+  }
+
+  function submitLogin() {
+    const wa = document.getElementById('login-whatsapp').value.trim()
+    const pw = document.getElementById('login-password').value
+    if (!wa || !pw) { window.toast && window.toast('Fill in both fields'); return }
+
+    // Demo mode: accept any credentials
+    localStorage.setItem('sb_token', 'demo-token-' + Date.now())
+    localStorage.setItem('sb_me', JSON.stringify({ name: 'Demo Business', tier: 'gold' }))
+    window.toast && window.toast('Logged in! Redirecting…')
+    setTimeout(() => window.location.href = 'network.html', 1200)
+  }
+</script>
+</body>
+</html>

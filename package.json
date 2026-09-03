@@ -2,24 +2,23 @@
   "name": "sondela-biz",
   "version": "0.1.0",
   "private": true,
+  "description": "B2B network and public discovery platform for Mdantsane township businesses",
+  "main": "server/index.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start":   "node server/index.js",
+    "dev":     "nodemon server/index.js",
+    "seed":    "node server/db/seed.js"
   },
   "dependencies": {
-    "next": "14.2.29",
-    "react": "^18",
-    "react-dom": "^18"
+    "express":       "^4.19.2",
+    "mysql2":        "^3.10.3",
+    "cors":          "^2.8.5",
+    "dotenv":        "^16.4.5",
+    "bcryptjs":      "^2.4.3",
+    "jsonwebtoken":  "^9.0.2",
+    "express-validator": "^7.2.0"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "nodemon": "^3.1.4"
   }
 }

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SondelaBiz — Project Pitch</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    /* Full-bleed cover */
+    .pitch-cover {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 3rem 1.25rem;
+      position: relative;
+    }
+    .pitch-cover::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%,  rgba(224,64,251,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 80% 5%,   rgba(41,121,255,0.14) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 55% at 5%  90%,  rgba(0,230,118,0.09)  0%, transparent 55%),
+        radial-gradient(ellipse 55% 45% at 95% 90%,  rgba(255,214,0,0.08)  0%, transparent 50%);
+      pointer-events: none;
+    }
+    .pitch-cover h1 { font-size: clamp(3rem, 8vw, 7rem); line-height: 1.05; letter-spacing: -0.03em; }
+    .pitch-cover .sub {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      color: var(--text-2);
+      max-width: 58ch;
+      margin: 1.5rem auto 2rem;
+    }
+    .pitch-chips {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
+      margin-bottom: 2.5rem;
+    }
+    .scroll-hint {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      color: var(--text-3); font-size: 0.72rem; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+
+    /* Pitch sections */
+    .pitch-section {
+      padding: 5rem 0;
+      border-top: 1px solid var(--border);
+    }
+    .pitch-section:first-of-type { border-top: none; }
+
+    .big-number {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 900; line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Problem / Solution split */
+    .ps-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 640px) { .ps-grid { grid-template-columns: 1fr; } }
+    .ps-card {
+      border-radius: var(--r-xl);
+      padding: 2rem;
+    }
+    .ps-card.problem { background: rgba(255,61,0,0.07);  border: 1px solid rgba(255,61,0,0.2); }
+    .ps-card.solution{ background: rgba(0,230,118,0.06); border: 1px solid rgba(0,230,118,0.2); }
+    .ps-card h3 { margin-bottom: 1rem; }
+    .ps-card ul { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .ps-card li { font-size: 0.9rem; color: var(--text-2); line-height: 1.5; }
+
+    /* Flow diagram */
+    .flow {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;
+      justify-content: center; margin-top: 2rem;
+    }
+    .flow-step {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 1rem 1.25rem;
+      text-align: center;
+      min-width: 120px;
+    }
+    .flow-step .step-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+    .flow-step .step-name { font-size: 0.75rem; font-weight: 600; color: var(--text-2); }
+    .flow-arrow { color: var(--text-3); font-size: 1.25rem; }
+
+    /* Pricing cards */
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .price-card {
+      border-radius: var(--r-lg);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .price-amount {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.6rem; font-weight: 900;
+      margin: 0.5rem 0;
+    }
+    .price-period { font-size: 0.72rem; color: var(--text-3); }
+    .price-features { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.35rem; }
+    .price-feature { font-size: 0.78rem; color: var(--text-2); }
+
+    /* SDG badges */
+    .sdg-grid {
+      display: flex; flex-wrap: wrap; gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    .sdg-chip {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 0.5rem 0.9rem;
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--text-2);
+    }
+
+    /* Team cards */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .team-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .team-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 900; font-size: 1.1rem; color: white;
+      margin: 0 auto 0.65rem;
+    }
+    .team-name  { font-size: 0.82rem; font-weight: 700; margin-bottom: 0.15rem; }
+    .team-role  { font-size: 0.7rem; color: var(--text-3); }
+
+    /* CTA section */
+    .pitch-cta {
+      background: linear-gradient(135deg, rgba(224,64,251,0.07), rgba(41,121,255,0.07));
+      border: 1px solid rgba(224,64,251,0.15);
+      border-radius: var(--r-xl);
+      padding: 3.5rem 2rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-mark">S</div> SondelaBiz
+    </a>
+    <ul class="nav-links">
+      <li><a href="directory.html">Platform Demo</a></li>
+      <li><a href="pitch.html" class="active">Pitch</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="index.html" class="btn btn-primary btn-sm">View Platform →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Cover ───────────────────────────────────────────────── -->
+<section class="pitch-cover container">
+  <div class="pitch-chips">
+    <span class="badge badge-fuchsia">24-Hour Hackathon</span>
+    <span class="badge badge-cobalt">East London, SA</span>
+    <span class="badge badge-lime">Team of 5</span>
+  </div>
+
+  <h1 data-anim>
+    <span class="grad-fuchsia-cobalt">Sondela</span><br>Biz
+  </h1>
+
+  <p class="sub" data-anim>
+    The B2B platform connecting Mdantsane's township businesses —
+    trusted discovery, a live needs-and-offers board, and a verified
+    trade reputation system. Built in 24 hours.
+  </p>
+
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center" data-anim>
+    <a href="index.html"    class="btn btn-primary btn-lg">See the Platform →</a>
+    <a href="directory.html" class="btn btn-glass btn-lg">Live Directory</a>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll to explore</span>
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+</section>
+
+<!-- ── The Problem ─────────────────────────────────────────── -->
+<section class="pitch-section container" id="problem">
+  <div class="section-eyebrow">The Problem</div>
+  <h2 data-anim>Mdantsane's economy is invisible online</h2>
+
+  <div class="ps-grid">
+    <div class="ps-card problem" data-anim>
+      <h3 style="color:var(--crimson)">🔴 What's broken</h3>
+      <ul>
+        <li>Businesses have no digital presence — customers can't find them</li>
+        <li>B2B sourcing relies on word-of-mouth WhatsApp chains</li>
+        <li>No way to verify trustworthiness before engaging</li>
+        <li>Foreign businesses take contracts that local providers could fill</li>
+        <li>Promising businesses stay small for lack of supply connections</li>
+      </ul>
+    </div>
+    <div class="ps-card solution" data-anim>
+      <h3 style="color:var(--lime)">🟢 What we built</h3>
+      <ul>
+        <li><strong>Public directory</strong> — searchable, filterable, WhatsApp-first</li>
+        <li><strong>B2B board</strong> — I Need / I Offer posts with instant contact</li>
+        <li><strong>Trusted Trader</strong> — earned reputation badges (bronze → silver → gold)</li>
+        <li><strong>Trade records</strong> — verified completion creates undeniable track record</li>
+        <li><strong>Zero friction</strong> — no app install, works on any phone</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── Impact numbers ──────────────────────────────────────── -->
+<section class="pitch-section container" id="numbers">
+  <div class="section-eyebrow">The Opportunity</div>
+  <div class="grid-3" style="margin-top:1.5rem">
+    <div data-anim>
+      <div class="big-number grad-fuchsia-cobalt">170K+</div>
+      <p class="text-muted text-sm">People in Mdantsane township, East London</p>
+    </div>
+    <div data-anim>
+      <div class="big-number" style="color:var(--volt)">R2B+</div>
+      <p class="text-muted text-sm">Annual township economy GDP estimate, Eastern Cape</p>
+    </div>
+    <div data-anim>
+      <div class="big-number" style="color:var(--lime)">0</div>
+      <p class="text-muted text-sm">Existing B2B platforms targeting Mdantsane specifically</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ────────────────────────────────────────── -->
+<section class="pitch-section container" id="how">
+  <div class="section-eyebrow">How It Works</div>
+  <h2 data-anim>Two parts. One platform.</h2>
+
+  <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem" class="ps-grid">
+    <div class="glass" style="padding:1.5rem" data-anim>
+      <div class="section-eyebrow" style="margin-bottom:0.75rem">Part A — Public Directory</div>
+      <h3 style="margin-bottom:0.75rem;font-size:1rem">Anyone can find, no login required</h3>
+      <div class="flow" style="flex-direction:column;align-items:flex-start;gap:0.5rem">
+        <div style="display:flex;align-items:center;gap:0.5rem"><span class="badge badge-cobalt">1</span><span class="text-sm">Search "hair salon Unit 4"</span></div>
+        <div style="display:flex;align-items:center;gap:0.5rem"><span class="badge badge-cobalt">2</span><span class="text-sm">See verified listings with ratings</span></div>
+        <div style="display:flex;align-items:center;gap:0.5rem"><span class="badge badge-cobalt">3</span><span class="text-sm">Tap WhatsApp to connect instantly</span></div>
+      </div>
+    </div>
+    <div class="glass" style="padding:1.5rem" data-anim>
+      <div class="section-eyebrow" style="margin-bottom:0.75rem">Part B — B2B Network</div>
+      <h3 style="margin-bottom:0.75rem;font-size:1rem">Login required — trade and build reputation</h3>
+      <div class="flow" style="flex-direction:column;align-items:flex-start;gap:0.5rem">
+        <div style="display:flex;align-items:center;gap:0.5rem"><span class="badge badge-fuchsia">1</span><span class="text-sm">Post "I Need 50kg onions — R800"</span></div>
+        <div style="display:flex;align-items:center;gap:0.5rem"><span class="badge badge-fuchsia">2</span><span class="text-sm">Suppliers respond via the board</span></div>
+        <div style="display:flex;align-items:center;gap:0.5rem"><span class="badge badge-fuchsia">3</span><span class="text-sm">Confirm the trade → earn your badge</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trusted Trader flow -->
+  <div style="margin-top:2rem">
+    <div class="text-sm text-muted" style="margin-bottom:1rem;text-align:center">Trusted Trader progression</div>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="step-icon">🆕</div>
+        <div class="step-name">New Trader</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-icon">🥉</div>
+        <div class="step-name">Bronze<br><span style="font-size:0.65rem;color:var(--text-3)">5+ trades, 3.5★</span></div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-icon">🥈</div>
+        <div class="step-name">Silver<br><span style="font-size:0.65rem;color:var(--text-3)">20+ trades, 4.0★</span></div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="border-color:rgba(255,214,0,0.3);background:var(--volt-dim)">
+        <div class="step-icon">🥇</div>
+        <div class="step-name">Gold<br><span style="font-size:0.65rem;color:var(--volt)">50+ trades, 4.5★</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Business model ──────────────────────────────────────── -->
+<section class="pitch-section container" id="revenue">
+  <div class="section-eyebrow">Business Model</div>
+  <h2 data-anim>Free to join. Pay to grow.</h2>
+  <div class="price-grid">
+    <div class="price-card glass" data-anim>
+      <div class="badge badge-muted">Free</div>
+      <div class="price-amount">R0</div>
+      <div class="price-period">forever</div>
+      <div class="price-features">
+        <div class="price-feature">✓ Public listing</div>
+        <div class="price-feature">✓ WhatsApp contact</div>
+        <div class="price-feature">✓ B2B board access</div>
+        <div class="price-feature">✓ Trade records</div>
+      </div>
+    </div>
+    <div class="price-card glass" data-anim>
+      <div class="badge badge-cobalt">Boost</div>
+      <div class="price-amount" style="color:var(--cobalt)">R10–30</div>
+      <div class="price-period">per post</div>
+      <div class="price-features">
+        <div class="price-feature">✓ Everything in Free</div>
+        <div class="price-feature">✓ Top of search results</div>
+        <div class="price-feature">✓ Highlighted listing</div>
+      </div>
+    </div>
+    <div class="price-card glass glow-fuchsia-sm" data-anim>
+      <div class="badge badge-fuchsia">Premium</div>
+      <div class="price-amount grad-fuchsia-cobalt">R49–99</div>
+      <div class="price-period">per month</div>
+      <div class="price-features">
+        <div class="price-feature">✓ Everything in Boost</div>
+        <div class="price-feature">✓ Analytics dashboard</div>
+        <div class="price-feature">✓ Priority badge</div>
+        <div class="price-feature">✓ Unlimited posts</div>
+      </div>
+    </div>
+    <div class="price-card glass glow-volt-sm" data-anim>
+      <div class="badge badge-volt">Featured</div>
+      <div class="price-amount" style="color:var(--volt)">R150–250</div>
+      <div class="price-period">per month</div>
+      <div class="price-features">
+        <div class="price-feature">✓ Everything in Premium</div>
+        <div class="price-feature">✓ Homepage feature</div>
+        <div class="price-feature">✓ Category banner</div>
+        <div class="price-feature">✓ Verified badge</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Tech stack ──────────────────────────────────────────── -->
+<section class="pitch-section container" id="tech">
+  <div class="section-eyebrow">Technology</div>
+  <h2 data-anim>Simple. Robust. Scalable.</h2>
+  <div class="grid-3" style="margin-top:1.5rem;gap:1rem">
+    <div class="glass" style="padding:1.5rem" data-anim>
+      <div style="font-size:1.5rem;margin-bottom:0.5rem">🌐</div>
+      <h4>Frontend</h4>
+      <p class="text-sm text-muted mt-sm">HTML · CSS · JavaScript<br>Motion One animations<br>Glassmorphism design system</p>
+    </div>
+    <div class="glass" style="padding:1.5rem" data-anim>
+      <div style="font-size:1.5rem;margin-bottom:0.5rem">⚙️</div>
+      <h4>Backend</h4>
+      <p class="text-sm text-muted mt-sm">Node.js · Express.js<br>JWT auth · bcrypt passwords<br>REST API</p>
+    </div>
+    <div class="glass" style="padding:1.5rem" data-anim>
+      <div style="font-size:1.5rem;margin-bottom:0.5rem">🗄️</div>
+      <h4>Database</h4>
+      <p class="text-sm text-muted mt-sm">MySQL · 7 tables<br>FULLTEXT search<br>Automated tier triggers</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SDGs ────────────────────────────────────────────────── -->
+<section class="pitch-section container" id="sdg">
+  <div class="section-eyebrow">Social Impact</div>
+  <h2 data-anim>Aligned with UN SDGs</h2>
+  <div class="sdg-grid" data-anim>
+    <div class="sdg-chip">SDG 8 — Decent Work & Economic Growth</div>
+    <div class="sdg-chip">SDG 9 — Industry, Innovation & Infrastructure</div>
+    <div class="sdg-chip">SDG 10 — Reduced Inequalities</div>
+    <div class="sdg-chip">SDG 11 — Sustainable Cities & Communities</div>
+    <div class="sdg-chip">SDG 17 — Partnerships for the Goals</div>
+  </div>
+  <p class="text-muted" style="margin-top:1.25rem;max-width:60ch">
+    Mdantsane is the third-largest township in South Africa. A platform that surfaces its
+    economic activity online doesn't just benefit businesses — it changes how the outside
+    world perceives and engages with township economies.
+  </p>
+</section>
+
+<!-- ── Team ───────────────────────────────────────────────── -->
+<section class="pitch-section container" id="team">
+  <div class="section-eyebrow">The Builders</div>
+  <h2 data-anim>Team of 5 — first hackathon</h2>
+  <div class="team-grid">
+    <div class="team-card" data-anim>
+      <div class="team-avatar" style="background:linear-gradient(135deg,#E040FB,#2979FF)">L</div>
+      <div class="team-name">Lindokuhle Ntuli</div>
+      <div class="team-role">Team Lead · DB & Types</div>
+    </div>
+    <div class="team-card" data-anim>
+      <div class="team-avatar" style="background:linear-gradient(135deg,#2979FF,#00E676)">X</div>
+      <div class="team-name">Xolani</div>
+      <div class="team-role">UI · Navbar · Styling</div>
+    </div>
+    <div class="team-card" data-anim>
+      <div class="team-avatar" style="background:linear-gradient(135deg,#00E676,#FFD600)">S</div>
+      <div class="team-name">Siyamthanda Ndabeni</div>
+      <div class="team-role">Public Pages</div>
+    </div>
+    <div class="team-card" data-anim>
+      <div class="team-avatar" style="background:linear-gradient(135deg,#FFD600,#FF3D00)">A</div>
+      <div class="team-name">Amahle Axola</div>
+      <div class="team-role">B2B Network · Board</div>
+    </div>
+    <div class="team-card" data-anim>
+      <div class="team-avatar" style="background:linear-gradient(135deg,#FF3D00,#E040FB)">L</div>
+      <div class="team-name">Lekgothe Ngoepe</div>
+      <div class="team-role">Pitch · Deploy</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ─────────────────────────────────────────────────── -->
+<section class="pitch-section container" id="cta" style="border-top:none">
+  <div class="pitch-cta" data-anim>
+    <div class="section-eyebrow" style="justify-content:center">See it live</div>
+    <h2 style="margin:0.5rem 0 1rem">SondelaBiz is live and working.</h2>
+    <p class="text-muted" style="max-width:50ch;margin:0 auto 2rem">
+      Register a business, post a need, find a supplier, confirm a trade.
+      The full flow — built in 24 hours by a team of five first-timers.
+    </p>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center">
+      <a href="index.html"    class="btn btn-primary btn-lg">Explore the Platform</a>
+      <a href="join.html"     class="btn btn-volt btn-lg">Register a Business</a>
+      <a href="board.html"    class="btn btn-glass btn-lg">View the Board</a>
+    </div>
+  </div>
+</section>
+
+<footer style="padding:2rem 0;border-top:1px solid var(--border);margin-top:2rem">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div class="nav-logo" style="font-size:0.9rem">
+      <div class="nav-logo-mark" style="width:24px;height:24px;font-size:0.65rem">S</div>
+      SondelaBiz
+    </div>
+    <p class="text-xs text-dim">Hackathon submission · Team of 5 · September 2026 · Mdantsane, East London, ZA</p>
+  </div>
+</footer>
+
+<script src="js/app.js" type="module"></script>
+</body>
+</html>

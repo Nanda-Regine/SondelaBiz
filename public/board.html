@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Needs & Offers Board — SondelaBiz</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    .board-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 768px) { .board-layout { grid-template-columns: 1fr; } }
+
+    .board-column-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      border-radius: var(--r-md);
+      margin-bottom: 1rem;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+    }
+    .col-need  { background: rgba(255,61,0,0.06);  border: 1px solid rgba(255,61,0,0.15); }
+    .col-offer { background: rgba(0,230,118,0.06); border: 1px solid rgba(0,230,118,0.15); }
+
+    .post-respond-form {
+      background: var(--surface-2);
+      border-radius: var(--r-sm);
+      padding: 0.75rem;
+      margin-top: 0.75rem;
+      display: none;
+    }
+    .post-respond-form.open { display: block; }
+    .post-respond-form textarea {
+      width: 100%; background: var(--surface-1);
+      border: 1px solid var(--border); border-radius: var(--r-sm);
+      padding: 0.6rem 0.9rem; color: var(--text-1);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.85rem; resize: none; outline: none;
+      min-height: 72px;
+    }
+    .post-respond-form textarea:focus {
+      border-color: rgba(41,121,255,0.5);
+      box-shadow: 0 0 0 3px rgba(41,121,255,0.1);
+    }
+
+    /* New post modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(6,6,8,0.75); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #0e0e12;
+      border: 1px solid var(--border-bright);
+      border-radius: var(--r-xl);
+      max-width: 480px; width: 100%;
+      padding: 2rem; position: relative;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+    .field-label { font-size: 0.78rem; font-weight: 600; color: var(--text-2); }
+    select.input { cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-mark">S</div> SondelaBiz
+    </a>
+    <ul class="nav-links">
+      <li><a href="directory.html">Find Business</a></li>
+      <li><a href="board.html" class="active">I Need / I Offer</a></li>
+      <li><a href="network.html">My Network</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a id="nav-login" href="join.html" class="btn btn-glass btn-sm">Log in</a>
+      <a href="join.html" class="btn btn-primary btn-sm">Register Free</a>
+      <a id="nav-dashboard" href="network.html" class="btn btn-primary btn-sm" style="display:none">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <!-- Header -->
+  <div style="padding:1.75rem 0 1.25rem;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div>
+      <h1 style="font-size:clamp(1.4rem,3vw,2rem)">B2B Board</h1>
+      <p class="text-muted text-sm" style="margin-top:0.35rem">
+        Post what you need, offer what you have. Respond to start a trade.
+      </p>
+    </div>
+    <button class="btn btn-primary" id="new-post-btn" onclick="openNewPost()">
+      + New Post
+    </button>
+  </div>
+
+  <!-- Filter tabs -->
+  <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap">
+    <button class="btn btn-glass btn-sm active-tab" id="tab-all"   onclick="setTab('all')">All posts</button>
+    <button class="btn btn-glass btn-sm"             id="tab-need"  onclick="setTab('need')">🔴 I Need</button>
+    <button class="btn btn-glass btn-sm"             id="tab-offer" onclick="setTab('offer')">🟢 I Offer</button>
+  </div>
+
+  <!-- Board columns -->
+  <div class="board-layout" id="board-layout">
+    <div id="need-col">
+      <div class="board-column-header col-need">
+        <span>🔴</span> I NEED
+        <span class="badge badge-crimson" id="need-count">0</span>
+      </div>
+      <div id="need-posts"></div>
+    </div>
+    <div id="offer-col">
+      <div class="board-column-header col-offer">
+        <span>🟢</span> I OFFER
+        <span class="badge badge-lime" id="offer-count">0</span>
+      </div>
+      <div id="offer-posts"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── New post modal ──────────────────────────────────────── -->
+<div class="modal-overlay" id="new-post-modal" onclick="closeIfOutside(event)">
+  <div class="modal">
+    <h3 style="margin-bottom:1.25rem">Create a Post</h3>
+
+    <div class="field-group">
+      <label class="field-label">Type</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+        <button id="type-need"  class="btn btn-glass" style="justify-content:center;border-color:rgba(255,61,0,0.3)"
+          onclick="selectType('need')">🔴 I Need</button>
+        <button id="type-offer" class="btn btn-glass" style="justify-content:center;border-color:rgba(0,230,118,0.3)"
+          onclick="selectType('offer')">🟢 I Offer</button>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="post-title">Title *</label>
+      <input id="post-title" type="text" class="input" placeholder="e.g. Need 50kg onions, bulk order">
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="post-desc">Description</label>
+      <textarea id="post-desc" class="input" style="min-height:80px;resize:vertical;font-family:inherit"
+        placeholder="Any details — quantity, timeline, budget…"></textarea>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+      <div class="field-group">
+        <label class="field-label" for="post-budget">Budget (ZAR)</label>
+        <input id="post-budget" type="number" class="input" placeholder="0.00" min="0">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Urgent?</label>
+        <label style="display:flex;align-items:center;gap:0.5rem;height:42px;cursor:pointer">
+          <input id="post-urgent" type="checkbox" style="width:16px;height:16px;accent-color:var(--fuchsia)">
+          <span class="text-sm text-muted">Mark as urgent</span>
+        </label>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
+      <button class="btn btn-primary" style="flex:1" onclick="submitPost()">Post</button>
+      <button class="btn btn-glass"   onclick="closeNewPost()">Cancel</button>
+    </div>
+
+    <div id="post-login-note" style="display:none;margin-top:1rem">
+      <p class="text-sm text-muted" style="text-align:center">
+        <a href="join.html" style="color:var(--fuchsia)">Log in or register</a> to post on the board.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/app.js" type="module"></script>
+<script>
+  let currentTab = 'all'
+  let postType   = 'need'
+  let posts      = []
+
+  document.addEventListener('DOMContentLoaded', () => {
+    posts = [...(window.MOCK_BOARD || [])]
+    renderBoard()
+  })
+
+  function setTab(tab) {
+    currentTab = tab
+    document.querySelectorAll('[id^="tab-"]').forEach(b => b.classList.remove('active-tab'))
+    document.getElementById('tab-' + tab).classList.add('active-tab')
+    renderBoard()
+  }
+
+  function renderBoard() {
+    const needPosts  = posts.filter(p => p.type === 'need')
+    const offerPosts = posts.filter(p => p.type === 'offer')
+
+    document.getElementById('need-count').textContent  = needPosts.length
+    document.getElementById('offer-count').textContent = offerPosts.length
+
+    const needEl  = document.getElementById('need-posts')
+    const offerEl = document.getElementById('offer-posts')
+    const layout  = document.getElementById('board-layout')
+
+    if (currentTab === 'all') {
+      layout.style.gridTemplateColumns = ''
+      document.getElementById('need-col').style.display  = ''
+      document.getElementById('offer-col').style.display = ''
+    } else if (currentTab === 'need') {
+      document.getElementById('need-col').style.display  = ''
+      document.getElementById('offer-col').style.display = 'none'
+      layout.style.gridTemplateColumns = '1fr'
+    } else {
+      document.getElementById('need-col').style.display  = 'none'
+      document.getElementById('offer-col').style.display = ''
+      layout.style.gridTemplateColumns = '1fr'
+    }
+
+    needEl.innerHTML  = (currentTab !== 'offer' ? needPosts  : []).map(renderPost).join('')
+    offerEl.innerHTML = (currentTab !== 'need'  ? offerPosts : []).map(renderPost).join('')
+  }
+
+  function renderPost(p) {
+    const tier  = p.trader_tier || 'new'
+    const tierL = window.tierLabel ? window.tierLabel(tier) : tier
+    return `
+      <div class="post-card ${p.type}" data-id="${p.id}" style="margin-bottom:0.75rem">
+        <div style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:0.5rem">
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+              ${p.is_urgent ? '<span class="badge badge-crimson">🔴 Urgent</span>' : ''}
+              <h4 style="font-size:0.9rem;line-height:1.3">${p.title}</h4>
+            </div>
+            <div class="text-xs text-dim" style="margin-top:0.25rem">
+              <span class="badge tier-${tier}" style="font-size:0.65rem">${tierL}</span>
+              ${p.business_name} · ${p.zone || ''}
+            </div>
+          </div>
+          <span class="badge badge-muted text-xs">${p.response_count || 0} replies</span>
+        </div>
+        ${p.description ? `<p class="text-sm text-muted" style="margin-bottom:0.75rem">${p.description}</p>` : ''}
+        <div style="display:flex;gap:0.5rem">
+          <button class="btn btn-glass btn-sm" onclick="toggleRespond(${p.id})">Respond</button>
+          ${p.budget ? `<span class="badge badge-volt" style="margin-left:auto">R${Number(p.budget).toLocaleString()}</span>` : ''}
+        </div>
+        <div class="post-respond-form" id="respond-${p.id}">
+          <textarea placeholder="Your response — introduce your business and how you can help…" rows="3"></textarea>
+          <div style="display:flex;justify-content:flex-end;gap:0.5rem;margin-top:0.5rem">
+            <button class="btn btn-glass btn-sm" onclick="toggleRespond(${p.id})">Cancel</button>
+            <button class="btn btn-primary btn-sm" onclick="sendResponse(${p.id})">Send →</button>
+          </div>
+        </div>
+      </div>`
+  }
+
+  function toggleRespond(id) {
+    const loggedIn = !!localStorage.getItem('sb_token')
+    if (!loggedIn) {
+      window.toast && window.toast('Log in to respond to posts')
+      setTimeout(() => window.location.href = 'join.html', 1500)
+      return
+    }
+    const form = document.getElementById('respond-' + id)
+    if (form) form.classList.toggle('open')
+  }
+
+  function sendResponse(id) {
+    const form = document.getElementById('respond-' + id)
+    const msg  = form?.querySelector('textarea')?.value.trim()
+    if (!msg) { window.toast && window.toast('Write a message first'); return }
+    // Demo: just show success
+    window.toast && window.toast('Response sent! Trade initiated. 🎉')
+    const post = posts.find(p => p.id === id)
+    if (post) post.response_count = (post.response_count || 0) + 1
+    form.classList.remove('open')
+    renderBoard()
+  }
+
+  // ── New post modal ─────────────────────────────────────────
+  function openNewPost() {
+    const loggedIn = !!localStorage.getItem('sb_token')
+    document.getElementById('post-login-note').style.display = loggedIn ? 'none' : 'block'
+    document.getElementById('new-post-modal').classList.add('open')
+    selectType('need')
+  }
+  function closeNewPost() { document.getElementById('new-post-modal').classList.remove('open') }
+  function closeIfOutside(e) { if (e.target === document.getElementById('new-post-modal')) closeNewPost() }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNewPost() })
+
+  function selectType(t) {
+    postType = t
+    document.getElementById('type-need').style.background  = t === 'need'  ? 'var(--crimson-dim)' : ''
+    document.getElementById('type-offer').style.background = t === 'offer' ? 'var(--lime-dim)'    : ''
+  }
+
+  function submitPost() {
+    const loggedIn = !!localStorage.getItem('sb_token')
+    if (!loggedIn) {
+      window.location.href = 'join.html'
+      return
+    }
+    const title = document.getElementById('post-title').value.trim()
+    if (!title) { window.toast && window.toast('Title is required'); return }
+
+    // Demo: add to local list
+    const newPost = {
+      id: Date.now(),
+      type: postType,
+      title,
+      description:    document.getElementById('post-desc').value.trim(),
+      budget:         document.getElementById('post-budget').value || null,
+      is_urgent:      document.getElementById('post-urgent').checked,
+      business_name:  'My Business',
+      zone:           'Mdantsane',
+      trader_tier:    'new',
+      response_count: 0,
+    }
+    posts.unshift(newPost)
+    closeNewPost()
+    renderBoard()
+    window.toast && window.toast('Post published! 🎉')
+  }
+
+  // Add active-tab style
+  const style = document.createElement('style')
+  style.textContent = `.active-tab { background: var(--surface-3) !important; color: var(--text-1) !important; border-color: var(--border-bright) !important; }`
+  document.head.appendChild(style)
+</script>
+</body>
+</html>

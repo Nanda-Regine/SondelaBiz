@@ -40,3 +40,5 @@ yarn-error.log*
 
 # PDF / project docs (keep locally, don't push binary blobs)
 *.pdf
+
+.vercel

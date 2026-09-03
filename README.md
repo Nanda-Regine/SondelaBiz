@@ -1,262 +1,209 @@
-# SondelaBiz 🟢
+# SondelaBiz 🔗
 
-> **The B2B network and public discovery platform for Mdantsane township businesses.**  
-> Built at the 24-Hour Hackathon · September 2026
-
-**Live platform:** [sondelabiz.vercel.app](https://sondelabiz.vercel.app) *(after deploy)*  
-**Pitch page:** [sondelabiz.vercel.app/pitch](https://sondelabiz.vercel.app/pitch)  
-**GitHub:** [github.com/Nanda-Regine/SondelaBiz](https://github.com/Nanda-Regine/SondelaBiz)
+> **B2B Network + Public Business Directory for Mdantsane Township, East London, SA**
+> 
+> Hackathon MVP — 24 hours · Team of 5
 
 ---
 
-## The Team
+## 🗂 What's in this repo
 
-| Name | Role | Files to own |
-|---|---|---|
-| **Lindokuhle Ntuli** | Founder & Architect | `lib/types.ts`, `data/mock-businesses.ts`, overall structure |
-| **Xolani Ncube** | UI Lead | `app/globals.css`, `components/layout/`, `components/ui/` |
-| **Siyamthanda Ndabeni** | Public Pages | `components/public/`, `app/directory/`, `app/business/[id]/` |
-| **Amahle Axola** | B2B Network | `app/network/`, board & deals pages |
-| **Lekgothe Ngoepe** | Pitch & Deploy | `app/pitch/`, Vercel deploy, this README |
+| Path | What it is | Who owns it |
+|------|-----------|-------------|
+| `public/index.html` | Platform homepage (hero, categories, featured businesses) | Xolani + Siyamthanda |
+| `public/directory.html` | Public business directory with filters + profile modal | Siyamthanda |
+| `public/board.html` | I Need / I Offer B2B board | Amahle |
+| `public/network.html` | B2B dashboard (login required) | Amahle |
+| `public/join.html` | 2-step registration + login | Lindokuhle |
+| `public/pitch.html` | Hackathon pitch / judge-facing brief | Lekgothe |
+| `public/css/main.css` | Design system (glassmorphism, all 7 Mdantsane colours) | Xolani |
+| `public/js/app.js` | Shared utilities, animations, mock data | Lindokuhle |
+| `public/js/api.js` | API client (switches between mock/live) | Lindokuhle |
+| `server/index.js` | Express app entry point | Lindokuhle |
+| `server/routes/auth.js` | POST /api/auth/register + login | Lindokuhle |
+| `server/routes/businesses.js` | Public directory + profile API | Siyamthanda |
+| `server/routes/board.js` | Board posts + transactions API | Amahle |
+| `server/db/schema.sql` | MySQL schema (7 tables) | Lindokuhle |
+| `server/db/seed.js` | 6 demo Mdantsane businesses | Lindokuhle |
+| `server/middleware/auth.js` | JWT requireAuth middleware | Lindokuhle |
 
 ---
 
-## The Stack
+## 🛠 Stack
 
-| Tech | Purpose |
-|---|---|
-| **Next.js 14** (App Router) | Framework — routing, SSR, layouts |
-| **TypeScript** | Type safety — catch bugs before they happen |
-| **Tailwind CSS** | Styling — all utility classes, brand tokens in `tailwind.config.ts` |
-| **Mock data** (`data/mock-businesses.ts`) | Prototype data — replace with Supabase later |
+| Layer | Technology |
+|-------|-----------|
+| Frontend | HTML · CSS · Vanilla JavaScript |
+| Animations | [Motion One](https://motion.dev) (same physics as Framer Motion) via CDN |
+| Backend | Node.js · Express.js |
+| Auth | JWT (`jsonwebtoken`) + bcrypt passwords |
+| Database | MySQL (`mysql2/promise` pool) |
+| Fonts | Unbounded (headings) + Plus Jakarta Sans (body) via Google Fonts |
 
 ---
 
-## Getting Started (do this first, all 5 of you)
+## 🚀 Getting started (local development)
 
+### Prerequisites
+- Node.js ≥ 18
+- MySQL running locally
+
+### 1. Install dependencies
 ```bash
-# 1. Clone the repo
-git clone https://github.com/Nanda-Regine/SondelaBiz.git
-cd SondelaBiz
-
-# 2. Install dependencies
 npm install
+```
 
-# 3. Start the dev server
+### 2. Set up environment
+```bash
+cp .env.example .env
+# Then edit .env with your MySQL credentials and a JWT secret
+```
+
+### 3. Create the database
+```bash
+mysql -u root -p < server/db/schema.sql
+```
+
+### 4. Seed with demo data
+```bash
+npm run seed
+```
+This creates 6 Mdantsane demo businesses. Demo password: `sondela123`
+
+### 5. Start the development server
+```bash
 npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) — you should see the SondelaBiz homepage.  
-Open [http://localhost:3000/pitch](http://localhost:3000/pitch) — the interactive pitch page.
+Open http://localhost:3000 — the frontend loads automatically.
 
 ---
 
-## Project Structure
+## 🗄 Database schema
 
 ```
-SondelaBiz/
-│
-├── app/                        ← Next.js App Router pages
-│   ├── layout.tsx              ← Root layout (fonts, metadata)
-│   ├── page.tsx                ← Platform homepage (MVP 2)
-│   ├── globals.css             ← Design system CSS variables
-│   ├── pitch/page.tsx          ← Project brief visual (MVP 1) 🎯
-│   ├── directory/page.tsx      ← Public business directory
-│   ├── business/[id]/page.tsx  ← Business detail page
-│   ├── network/page.tsx        ← B2B dashboard
-│   ├── network/board/page.tsx  ← Needs & Offers board
-│   ├── network/deals/page.tsx  ← Deal tracker
-│   └── join/page.tsx           ← Registration
-│
-├── components/
-│   ├── layout/                 ← Navbar, Footer
-│   ├── ui/                     ← Reusable: Badge, TrustedTraderBadge
-│   └── public/                 ← Hero, CategoryGrid, BusinessCard
-│
-├── lib/
-│   ├── types.ts               ← All TypeScript interfaces & enums
-│   └── utils.ts               ← Helper functions (search, WhatsApp links, etc.)
-│
-└── data/
-    └── mock-businesses.ts     ← Prototype data (11 businesses, 5 board posts, 2 deals)
+users           — login accounts (linked to businesses)
+businesses      — core business profiles + auth (password_hash)
+categories      — category lookup (salon, plumber, electrician…)
+offers          — services each business provides
+requests        — things each business needs to source
+board_posts     — I NEED / I OFFER unified board feed
+board_responses — responses to board posts
+transactions    — trade records (pending → complete)
+reviews         — ratings that auto-update tier via MySQL trigger
 ```
 
----
+**Trusted Trader tiers** (auto-calculated by MySQL trigger on each review):
 
-## The Two MVPs
-
-### MVP 1 — Interactive Project Brief (`/pitch`)
-A full-screen visual presentation of the SondelaBiz concept: problem, solution, business model, competitors, SDG impact, and the team. Share this link with judges and mentors.
-
-### MVP 2 — Platform Prototype (`/`)
-The actual SondelaBiz platform:
-- **Public directory** — browse businesses, search, filter by category
-- **Business detail pages** — full profile + WhatsApp contact button
-- **B2B network dashboard** — simulated logged-in experience
-- **Needs & Offers board** — post and browse B2B requests
-- **Deal tracker** — track negotiations
-- **Join / Register** — 2-step form
+| Tier | Trades | Rating |
+|------|--------|--------|
+| 🆕 New | any | any |
+| 🥉 Bronze | 5+ | ≥ 3.5★ |
+| 🥈 Silver | 20+ | ≥ 4.0★ |
+| 🥇 Gold | 50+ | ≥ 4.5★ |
 
 ---
 
-## Design System
+## 🎯 24-Hour Hackathon Build Plan
 
-All brand colours and design tokens are in `app/globals.css` and `tailwind.config.ts`.
+### Phase 1 — Foundation (Hours 0–4)
+- [ ] Lindokuhle: `npm install`, set up `.env`, run schema + seed
+- [ ] Lindokuhle: confirm `npm run dev` works at localhost:3000
+- [ ] All: clone repo, `npm install`, confirm the pages load in browser
 
-| Token | Value | Use for |
-|---|---|---|
-| `brand-800` (`#1A5C38`) | Deep SA Green | Primary buttons, links, headings |
-| `amber` (`#E8A020`) | Ubuntu Amber | Accents, CTAs, star ratings |
-| `tier-gold` (`#F59E0B`) | Gold | Gold Trusted Trader badges |
-| `tier-silver` (`#9CA3AF`) | Silver | Silver Trusted Trader badges |
-| `tier-bronze` (`#CD7F32`) | Bronze | Bronze Trusted Trader badges |
+### Phase 2 — Public pages (Hours 4–10)
+- [ ] **Siyamthanda**: `directory.html` — wire search/filter to mock data; test category filter
+- [ ] **Xolani**: `index.html` hero + category grid; polish CSS in `main.css`
+- [ ] **Lindokuhle**: test API endpoints with Postman or Thunder Client
 
-**Fonts:**
-- `font-syne` — bold display, brand headings (Syne 800)
-- `font-sans` — body text (DM Sans 400/500/600)
+### Phase 3 — B2B Network (Hours 10–16)
+- [ ] **Amahle**: `board.html` — make new post modal work end-to-end
+- [ ] **Amahle**: `network.html` — make trade status update work
+- [ ] **Lindokuhle**: `join.html` — wire register/login to real API (`api.js` DEMO_MODE = false)
 
----
+### Phase 4 — Polish + Demo (Hours 16–22)
+- [ ] **All**: go through every page, catch broken links
+- [ ] **Xolani**: add CSS polish — hover states, mobile layout
+- [ ] **Lekgothe**: polish `pitch.html` with real team data + screenshots
 
-## 24-Hour Build Plan
-
-### Phase 0 — Kickoff (Hour 0–1) · All 5 together
-- [ ] Clone repo, `npm install`, verify `localhost:3000` works
-- [ ] Each person reads their section below
-- [ ] Agree on the demo user flow for presentation
-
-### Phase 1 — Foundation (Hour 1–4) · Split work
-| Person | Task |
-|---|---|
-| Lindokuhle | Review & extend `data/mock-businesses.ts` — add real businesses you know |
-| Xolani | Polish `globals.css` and `Navbar.tsx` — get the brand feeling right |
-| Siyamthanda | Review `components/public/Hero.tsx` — tweak copy, test search |
-| Amahle | Walk through `app/network/page.tsx` and the board page |
-| Lekgothe | Read the pitch page (`/pitch`), update team section if needed |
-
-### Phase 2 — Core Build (Hour 4–10) · Parallel tracks
-- **Siyamthanda:** Make the directory page beautiful. Add more businesses. Make search snappy.
-- **Amahle:** Get the board working. Make "Respond" actually open a reply form.
-- **Xolani:** Help anyone who's stuck. Polish mobile views.
-- **Lindokuhle:** Add 10 more real Mdantsane businesses to `mock-businesses.ts`.
-- **Lekgothe:** Polish the `/pitch` page. Update stats. Prepare the demo script.
-
-### Phase 3 — Features (Hour 10–16)
-- WhatsApp links working on all contact buttons ✓ (already done)
-- Trusted Trader badges showing correctly ✓ (already done)
-- Make the Join form (Step 1 + Step 2) feel smooth
-- Add a basic "Leave a Review" form to business detail pages
-
-### Phase 4 — Polish (Hour 16–20)
-- Test on your phone's browser (not just desktop)
-- Fix any text that overflows on small screens
-- Check every link navigates correctly
-
-### Phase 5 — Deploy (Hour 20–22) · Lekgothe leads
-- See deployment section below
-
-### Phase 6 — Demo Prep (Hour 22–24) · Lindokuhle leads
-- Practice the external user flow (find a plumber as a Sandton buyer)
-- Practice the internal flow (post a need, get a response)
-- Prepare a 3-min pitch using the `/pitch` page as your visual
+### Phase 5 — Deploy + Present (Hours 22–24)
+- [ ] **Lekgothe**: deploy to Railway or Render (for the Express server)
+- [ ] **Lekgothe**: update frontend API base URL if needed
+- [ ] **All**: run the demo script (see below)
 
 ---
 
-## Deployment (Vercel)
+## 🎤 Demo Script for Judges
 
-Lekgothe owns this step. Run these once:
+### External buyer flow (Part A — no login)
+1. Go to **Directory** → search "plumber"
+2. Click Mthembeni Plumbing → see rating (4.7★), Silver tier badge, 41 completed trades
+3. Click **WhatsApp** button → opens `wa.me` link (zero friction)
+
+### B2B network flow (Part B — logged in)
+1. **Register** as a new salon owner → 2-step form → dashboard
+2. Go to **Board** → click "New Post" → "I NEED: 50 bottles of shampoo, Budget R1,500"
+3. Log out → log in as another business (any demo account + `sondela123`)
+4. See the need post → click **Respond** → send message → "Trade initiated!"
+5. Back in first account → **My Trades** → click **Confirm** → trade shows "complete"
+6. Trust score updates: +1 completed trade
+
+---
+
+## 👥 Team
+
+| Name | Role |
+|------|------|
+| **Lindokuhle Ntuli** | Team Lead · Backend · Database · Types |
+| **Xolani** | UI Lead · Navbar · Design system |
+| **Siyamthanda Ndabeni** | Public pages (directory, homepage) |
+| **Amahle Axola** | B2B network (board, dashboard, trades) |
+| **Lekgothe Ngoepe** | Pitch page · Deployment |
+
+---
+
+## 🔧 Git workflow for the team
 
 ```bash
-# Install Vercel CLI globally
-npm install -g vercel
+# Each person works on their own branch
+git checkout -b feature/your-name-task-name
 
-# Login (use the project's credentials)
-vercel login
-
-# Deploy (first time)
-vercel --prod
-```
-
-Or connect the GitHub repo to Vercel at [vercel.com/new](https://vercel.com/new) and it auto-deploys on every push to `main`.
-
----
-
-## Git Workflow — Team of 5 Guide
-
-**Never work directly on `main`.** Create a branch for your work:
-
-```bash
-# Create your branch (use your first name)
-git checkout -b xolani/navbar-improvements
-
-# Stage and commit your work
+# Commit often
 git add .
-git commit -m "feat: polish Navbar with mobile menu"
+git commit -m "feat: add category filter to directory page"
 
-# Push to GitHub
-git push origin xolani/navbar-improvements
+# Push and open a PR
+git push origin feature/your-name-task-name
 ```
 
-Then create a Pull Request on GitHub and ask one teammate to review before merging.
-
-**Branch naming:**
-- `lindokuhle/more-businesses`
-- `xolani/ui-polish`
-- `siyamthanda/directory-search`
-- `amahle/board-respond`
-- `lekgothe/deploy`
+**NEVER commit directly to `main`.** Always open a PR and ask one teammate to review.
 
 ---
 
-## Adding More Businesses (Lindokuhle's job)
+## ⚠️ Rules (non-negotiable)
 
-Open `data/mock-businesses.ts` and add to the `businesses` array. Copy one of the existing objects and change the fields. The `id` must be unique (`b12`, `b13`, etc.).
-
-Real businesses from Mdantsane that fit? Add them (with their permission).
-
----
-
-## Connecting a Real Backend (Phase 2 — after hackathon)
-
-The prototype uses mock data. To go live:
-
-1. **Auth:** Replace `MOCK_LOGGED_IN` booleans with [Supabase Auth](https://supabase.com/docs/guides/auth)
-2. **Database:** Replace `data/mock-businesses.ts` with Supabase queries
-3. **WhatsApp integration:** [Twilio WhatsApp API](https://www.twilio.com/docs/whatsapp) or [360dialog](https://www.360dialog.com/)
-4. **Payments:** [PayFast](https://www.payfast.co.za/) for Boost/Premium payments
+1. **NEVER** touch or modify `.env` or `.env.local`
+2. **NEVER** commit passwords, tokens, or secrets
+3. **NEVER** hard-delete database records — use soft-delete (`deleted_at = NOW()`)
+4. All timestamps stored as UTC in the database
 
 ---
 
-## Advice for the 24 Hours
+## 📦 API Reference (quick)
 
-1. **Scope ruthlessly.** The skeleton is already built. Your job is to make it feel real with real content and real polish — not to rebuild it.
-2. **Add real Mdantsane data.** 20 real businesses (even if mock) is 10× more convincing than 5.
-3. **Test on your phone.** Judges will open it on mobile. Broken mobile = broken first impression.
-4. **WhatsApp works without a backend.** The `wa.me` link is your killer feature — it *already works*.
-5. **The pitch page IS your pitch.** Make it beautiful. Update the stats. Get the copy right.
-6. **Sleep at least 4 hours.** 3am code is 9am bugs.
-7. **Commit often.** Every 2 hours, push your branch. You don't want to lose work.
-8. **Demo the story, not the code.** Show the external flow first (buyer outside Mdantsane finds a plumber). That's the "new markets" proof point. That's what wins.
+```
+POST /api/auth/register    — register new business
+POST /api/auth/login       — login → returns JWT token
 
----
+GET  /api/businesses       — public directory (filters: q, category, zone)
+GET  /api/businesses/:id   — single business profile + reviews
 
-## The Demo Flow (for judges)
+GET  /api/board            — board posts (filter: type=need|offer)
+POST /api/board            — create post [auth required]
+POST /api/board/:id/respond — respond to post [auth]
 
-> **"Imagine you're in Sandton. You need a plumber urgently and someone sends you a SondelaBiz link."**
+GET  /api/board/transactions  — my trades [auth]
+PATCH /api/board/transactions/:id — update trade status [auth]
+```
 
-1. Open `/directory` — filter by Plumbers  
-2. Find **Mthembeni Plumbing** — see the Gold badge, the 4.7★ rating  
-3. Click **View Profile** — see the description, offers, reviews  
-4. Click **WhatsApp** — message goes directly to the plumber  
-5. *"That plumber is in Mdantsane. He couldn't be found before. He has a new market now."*
-
-> **"Now you're a salon owner in Unit 4. You need hair extension suppliers."**
-
-6. Open `/network` (dashboard)  
-7. See **Needs & Offers** board  
-8. Post a need: "Looking for bulk hair extension supplier"  
-9. Another business responds → deal is tracked → review follows → tier climbs
-
----
-
-*Built with ❤️ in Mdantsane.*  
-*Sondela ngeBusiness.*
+> **DEMO_MODE** (in `public/js/app.js`): set to `true` (default) to use mock data without a server.
+> Set to `false` once your MySQL server is running and seeded.
