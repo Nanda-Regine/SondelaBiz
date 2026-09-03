@@ -297,29 +297,84 @@
     window.location.href = 'join.html'
   }
 
-  // ── Demo trade data ────────────────────────────────────────
+  // ── Demo fallback data ────────────────────────────────────────
   const MOCK_TRADES = [
     { id: 1, title: 'Hair extensions bulk order', from_name: "Mama Thandiwe's Salon", to_name: 'Hair Supplies Co.', status: 'complete', amount: 1200 },
     { id: 2, title: 'Braiding client referrals', from_name: "Mama Thandiwe's Salon", to_name: 'Mthembeni Plumbing', status: 'pending', amount: null },
     { id: 3, title: 'Nail technician contract', from_name: "Mama Thandiwe's Salon", to_name: 'Bright Sparks Nails', status: 'agreed', amount: 3500 },
     { id: 4, title: 'Relaxer products restock', from_name: "Mama Thandiwe's Salon", to_name: 'KasiGarage Motors', status: 'negotiating', amount: 800 },
   ]
-
   const MOCK_POSTS = [
     { id: 1, type: 'need', title: 'Need 50+ braiding client referrals', is_urgent: true, response_count: 3 },
     { id: 2, type: 'offer', title: 'Professional braiding specials — R80', is_urgent: false, response_count: 7 },
   ]
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Populate profile from localStorage
+  let liveTrades = MOCK_TRADES
+  let livePosts  = MOCK_POSTS
+
+  function authHeaders() {
+    const t = localStorage.getItem('sb_token')
+    return t ? { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }
+             : { 'Content-Type': 'application/json' }
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Populate profile sidebar from localStorage (immediate, no flicker)
     if (me) {
       const n = me.name || 'My Business'
       document.getElementById('profile-avatar').textContent = n.charAt(0).toUpperCase()
       document.getElementById('profile-name').textContent   = n
+      if (me.trader_tier) {
+        const tierLabel = { new: 'New Trader', bronze: '🥉 Bronze', silver: '🥈 Silver', gold: '🥇 Gold Trader' }
+        const tierEl = document.getElementById('profile-tier')
+        if (tierEl) tierEl.textContent = tierLabel[me.trader_tier] || me.trader_tier
+        tierEl.className = 'badge tier-' + me.trader_tier
+      }
+    }
+
+    await window.serverCheck
+
+    if (!window.DEMO_MODE) {
+      try {
+        // Load real profile
+        const profile = await fetch('/api/businesses/me/profile', { headers: authHeaders() }).then(r => r.json())
+        if (profile.id) {
+          const n = profile.name || 'My Business'
+          document.getElementById('profile-avatar').textContent = n.charAt(0).toUpperCase()
+          document.getElementById('profile-name').textContent   = n
+          document.getElementById('profile-meta').textContent   = `${profile.zone || ''} · ${profile.category || ''}`
+          const tierLabel = { new: 'New Trader', bronze: '🥉 Bronze', silver: '🥈 Silver', gold: '🥇 Gold Trader' }
+          const tierEl = document.getElementById('profile-tier')
+          if (tierEl) { tierEl.textContent = tierLabel[profile.trader_tier] || profile.trader_tier; tierEl.className = 'badge tier-' + profile.trader_tier }
+          document.getElementById('profile-rating').textContent = (profile.rating || 0).toFixed(1)
+          document.getElementById('stat-deals').textContent   = profile.completed_deals || 0
+          document.getElementById('stat-rating').textContent  = (profile.rating || 0).toFixed(1) + '★'
+          document.getElementById('stat-reviews').textContent = profile.review_count || 0
+          document.getElementById('score-trades').textContent = `${profile.completed_deals || 0} Completed Trades`
+          document.getElementById('score-rating').textContent = `${(profile.rating || 0).toFixed(1)} Avg Rating`
+          // Pre-fill edit form
+          document.getElementById('edit-name').value    = profile.name    || ''
+          document.getElementById('edit-tagline').value = profile.tagline || ''
+          document.getElementById('edit-wa').value      = profile.whatsapp || ''
+          document.getElementById('edit-address').value = profile.address  || ''
+          // Cache updated me
+          localStorage.setItem('sb_me', JSON.stringify(profile))
+        }
+      } catch { /* use sidebar values from localStorage */ }
+
+      try {
+        const data = await fetch('/api/board/transactions', { headers: authHeaders() }).then(r => r.json())
+        liveTrades = data.transactions || MOCK_TRADES
+      } catch { liveTrades = MOCK_TRADES }
+
+      try {
+        const data = await fetch('/api/board/my-posts', { headers: authHeaders() }).then(r => r.json())
+        livePosts = data.posts || MOCK_POSTS
+      } catch { livePosts = MOCK_POSTS }
     }
 
     renderOverviewTrades()
-    renderTradesList(MOCK_TRADES)
+    renderTradesList(liveTrades)
     renderMyPosts()
   })
 
@@ -336,7 +391,8 @@
   // ── Render overview trades ─────────────────────────────────
   function renderOverviewTrades() {
     const el = document.getElementById('overview-trades')
-    el.innerHTML = MOCK_TRADES.slice(0, 3).map(t => tradeCard(t)).join('')
+    el.innerHTML = liveTrades.slice(0, 3).map(t => tradeCard(t)).join('')
+    document.getElementById('stat-deals').textContent = liveTrades.filter(t => t.status === 'complete').length || liveTrades.length
   }
 
   function renderTradesList(data) {
@@ -363,31 +419,82 @@
   }
 
   function filterTrades(f) {
-    const data = f === 'all' ? MOCK_TRADES : MOCK_TRADES.filter(t => t.status === f)
+    const data = f === 'all' ? liveTrades : liveTrades.filter(t => t.status === f)
     renderTradesList(data)
   }
 
-  function confirmTrade(id) {
-    const t = MOCK_TRADES.find(x => x.id === id)
-    if (t) t.status = 'complete'
-    renderTradesList(MOCK_TRADES)
+  async function confirmTrade(id) {
+    if (!window.DEMO_MODE) {
+      try {
+        const res = await fetch(`/api/board/transactions/${id}`, {
+          method: 'PATCH',
+          headers: authHeaders(),
+          body: JSON.stringify({ status: 'complete' }),
+        })
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error) }
+        const t = liveTrades.find(x => x.id === id)
+        if (t) t.status = 'complete'
+      } catch (err) {
+        window.toast && window.toast('⚠ ' + err.message); return
+      }
+    } else {
+      const t = liveTrades.find(x => x.id === id)
+      if (t) t.status = 'complete'
+    }
+    renderTradesList(liveTrades)
     renderOverviewTrades()
     window.toast && window.toast('✓ Trade confirmed! 🎉')
   }
 
   function renderMyPosts() {
-    document.getElementById('my-posts-list').innerHTML = MOCK_POSTS.map(p => `
-      <div class="glass-sm" style="padding:1rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:1rem">
+    const el = document.getElementById('my-posts-list')
+    if (!livePosts.length) { el.innerHTML = '<p class="text-muted text-sm">No posts yet. <a href="board.html" style="color:var(--fuchsia)">Post to the board →</a></p>'; return }
+    el.innerHTML = livePosts.map(p => `
+      <div class="glass-sm" style="padding:1rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
         <span class="badge ${p.type === 'need' ? 'badge-crimson' : 'badge-lime'}">${p.type === 'need' ? '🔴 Need' : '🟢 Offer'}</span>
-        <span style="flex:1;font-size:0.88rem;font-weight:500">${p.title}</span>
+        <span style="flex:1;min-width:160px;font-size:0.88rem;font-weight:500">${p.title}</span>
         ${p.is_urgent ? '<span class="badge badge-crimson">Urgent</span>' : ''}
-        <span class="badge badge-muted">${p.response_count} replies</span>
-        <button class="btn btn-glass btn-sm" onclick="window.toast && window.toast('Post removed (demo)')">Remove</button>
+        <span class="badge badge-muted">${p.response_count || 0} replies</span>
+        <button class="btn btn-glass btn-sm" onclick="removePost(${p.id})">Remove</button>
       </div>`).join('')
   }
 
-  function saveProfile() {
-    window.toast && window.toast('Profile saved! ✓')
+  async function removePost(id) {
+    if (!window.DEMO_MODE) {
+      try {
+        const res = await fetch(`/api/board/${id}`, { method: 'DELETE', headers: authHeaders() })
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error) }
+      } catch (err) { window.toast && window.toast('⚠ ' + err.message); return }
+    }
+    livePosts = livePosts.filter(p => p.id !== id)
+    renderMyPosts()
+    window.toast && window.toast('Post removed ✓')
+  }
+
+  async function saveProfile() {
+    const payload = {
+      name:    document.getElementById('edit-name').value.trim(),
+      tagline: document.getElementById('edit-tagline').value.trim(),
+      phone:   document.getElementById('edit-wa').value.trim(),
+      address: document.getElementById('edit-address').value.trim(),
+    }
+    if (!window.DEMO_MODE) {
+      try {
+        const res = await fetch('/api/businesses/me/profile', {
+          method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload),
+        })
+        const d = await res.json()
+        if (!res.ok) throw new Error(d.error)
+        // Update sidebar
+        if (payload.name) { document.getElementById('profile-name').textContent = payload.name; document.getElementById('profile-avatar').textContent = payload.name.charAt(0).toUpperCase() }
+        // Update cached me
+        const me2 = JSON.parse(localStorage.getItem('sb_me') || '{}')
+        localStorage.setItem('sb_me', JSON.stringify({ ...me2, ...payload }))
+        window.toast && window.toast('Profile saved! ✓')
+      } catch (err) { window.toast && window.toast('⚠ ' + err.message) }
+    } else {
+      window.toast && window.toast('Profile saved! ✓ (demo mode)')
+    }
   }
 
   function logout() {

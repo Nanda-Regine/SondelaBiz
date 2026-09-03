@@ -207,10 +207,28 @@
   let postType   = 'need'
   let posts      = []
 
-  document.addEventListener('DOMContentLoaded', () => {
-    posts = [...(window.MOCK_BOARD || [])]
-    renderBoard()
+  document.addEventListener('DOMContentLoaded', async () => {
+    await window.serverCheck
+    await loadBoard()
   })
+
+  async function loadBoard() {
+    if (!window.DEMO_MODE) {
+      try {
+        const qs = currentTab !== 'all' ? `?type=${currentTab}` : ''
+        const data = await fetch(`/api/board${qs}`, { headers: authHeaders() }).then(r => r.json())
+        posts = data.posts || []
+      } catch { posts = [...(window.MOCK_BOARD || [])] }
+    } else {
+      posts = [...(window.MOCK_BOARD || [])]
+    }
+    renderBoard()
+  }
+
+  function authHeaders() {
+    const t = localStorage.getItem('sb_token')
+    return t ? { Authorization: 'Bearer ' + t } : {}
+  }
 
   function setTab(tab) {
     currentTab = tab
@@ -308,11 +326,30 @@
     if (form) form.classList.toggle('open')
   }
 
-  function sendResponse(id) {
+  async function sendResponse(id) {
     const form = document.getElementById('respond-' + id)
     const msg  = form?.querySelector('textarea')?.value.trim()
     if (!msg) { window.toast && window.toast('Write a message first'); return }
-    // Demo: just show success
+
+    const btn = form?.querySelector('.btn-primary')
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending…' }
+
+    if (!window.DEMO_MODE) {
+      try {
+        const res = await fetch(`/api/board/${id}/respond`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ message: msg }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Failed to send')
+      } catch (err) {
+        window.toast && window.toast('⚠ ' + err.message)
+        if (btn) { btn.disabled = false; btn.textContent = 'Send →' }
+        return
+      }
+    }
+
     window.toast && window.toast('Response sent! Trade initiated. 🎉')
     const post = posts.find(p => p.id === id)
     if (post) post.response_count = (post.response_count || 0) + 1
@@ -337,29 +374,52 @@
     document.getElementById('type-offer').style.background = t === 'offer' ? 'var(--lime-dim)'    : ''
   }
 
-  function submitPost() {
+  async function submitPost() {
     const loggedIn = !!localStorage.getItem('sb_token')
-    if (!loggedIn) {
-      window.location.href = 'join.html'
-      return
-    }
+    if (!loggedIn) { window.location.href = 'join.html'; return }
     const title = document.getElementById('post-title').value.trim()
     if (!title) { window.toast && window.toast('Title is required'); return }
 
-    // Demo: add to local list
-    const newPost = {
-      id: Date.now(),
-      type: postType,
+    const btn = document.querySelector('#new-post-modal .btn-primary')
+    if (btn) { btn.disabled = true; btn.textContent = 'Posting…' }
+
+    const payload = {
+      type:        postType,
       title,
-      description:    document.getElementById('post-desc').value.trim(),
-      budget:         document.getElementById('post-budget').value || null,
-      is_urgent:      document.getElementById('post-urgent').checked,
-      business_name:  'My Business',
-      zone:           'Mdantsane',
-      trader_tier:    'new',
-      response_count: 0,
+      description: document.getElementById('post-desc').value.trim(),
+      budget:      document.getElementById('post-budget').value || null,
+      isUrgent:    document.getElementById('post-urgent').checked,
     }
-    posts.unshift(newPost)
+
+    if (!window.DEMO_MODE) {
+      try {
+        const res = await fetch('/api/board', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify(payload),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Failed to post')
+        // Reload from server to get business name + tier
+        await loadBoard()
+        closeNewPost()
+        window.toast && window.toast('Post published! 🎉')
+        return
+      } catch (err) {
+        window.toast && window.toast('⚠ ' + err.message)
+        if (btn) { btn.disabled = false; btn.textContent = 'Post' }
+        return
+      }
+    }
+
+    // Demo: add to local list
+    const me = JSON.parse(localStorage.getItem('sb_me') || '{}')
+    posts.unshift({
+      id: Date.now(), ...payload,
+      is_urgent: payload.isUrgent,
+      business_name: me.name || 'My Business',
+      zone: me.zone || 'Mdantsane', trader_tier: me.trader_tier || 'new', response_count: 0,
+    })
     closeNewPost()
     renderBoard()
     window.toast && window.toast('Post published! 🎉')

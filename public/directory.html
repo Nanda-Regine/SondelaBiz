@@ -199,7 +199,7 @@
   if (params.get('q'))        filters.q   = params.get('q')
   if (params.get('category')) filters.cat = params.get('category')
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     // Build cat filter buttons
     const catBox = document.getElementById('cat-filters')
     ;(window.CATEGORIES || []).forEach(c => {
@@ -214,7 +214,24 @@
 
     if (filters.q) document.getElementById('search-input').value = filters.q
 
-    allBizs = window.MOCK_BUSINESSES || []
+    // Wait for server auto-detect, then load businesses
+    document.getElementById('results-count').textContent = 'Loading…'
+    await window.serverCheck
+
+    if (!window.DEMO_MODE) {
+      try {
+        const qs = new URLSearchParams({ limit: 100 }).toString()
+        const data = await fetch(`/api/businesses?${qs}`).then(r => r.json())
+        allBizs = (data.businesses || []).map(b => ({
+          ...b, icon: window.categoryIcon ? window.categoryIcon(b.category) : '🏢'
+        }))
+      } catch {
+        allBizs = window.MOCK_BUSINESSES || []
+      }
+    } else {
+      allBizs = window.MOCK_BUSINESSES || []
+    }
+
     renderResults()
 
     // Check for direct id link
@@ -222,11 +239,28 @@
     if (id) {
       const biz = allBizs.find(b => b.id == id)
       if (biz) showProfile(biz)
+      else if (!window.DEMO_MODE) {
+        // Fetch single biz from API
+        fetch(`/api/businesses/${id}`).then(r => r.json()).then(b => { if (b.id) showProfile(b) }).catch(() => {})
+      }
     }
   })
 
-  function runSearch() {
+  async function runSearch() {
     filters.q = document.getElementById('search-input').value.trim()
+    if (!window.DEMO_MODE) {
+      // Hit the server with live search params
+      try {
+        const p = {}
+        if (filters.q)    p.q        = filters.q
+        if (filters.cat)  p.category = filters.cat
+        if (filters.zone) p.zone     = filters.zone
+        if (filters.tier) p.tier     = filters.tier
+        p.limit = 100
+        const data = await fetch('/api/businesses?' + new URLSearchParams(p)).then(r => r.json())
+        allBizs = (data.businesses || []).map(b => ({ ...b, icon: window.categoryIcon ? window.categoryIcon(b.category) : '🏢' }))
+      } catch { /* fall through to client-side filter */ }
+    }
     renderResults()
   }
 

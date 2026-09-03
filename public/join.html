@@ -451,29 +451,91 @@
   }
 
   // ── Submit registration ───────────────────────────────────────
-  function submitRegister() {
+  async function submitRegister() {
     const wa = document.getElementById('biz-whatsapp').value.trim()
     const pw = document.getElementById('biz-password').value
     const waValid = /^27\d{9}$/.test(wa.replace(/\s/g,''))
     const pwValid = pw.length >= 8
     if (!waValid) { document.getElementById('fg-wa').classList.add('has-error'); window.toast && window.toast('Check your WhatsApp number'); return }
     if (!pwValid) { document.getElementById('fg-pw').classList.add('has-error'); window.toast && window.toast('Password must be at least 8 characters'); return }
-    // Demo: simulate success
-    localStorage.setItem('sb_token', 'demo-token-' + Date.now())
-    localStorage.setItem('sb_me', JSON.stringify({ name: document.getElementById('biz-name').value, tier: 'new' }))
-    document.getElementById('register-form').style.display = 'none'
-    document.getElementById('success-state').style.display = ''
+
+    const btn = document.querySelector('#step-2 .btn-primary')
+    if (btn) { btn.disabled = true; btn.textContent = 'Registering…' }
+
+    await window.serverCheck
+
+    if (window.DEMO_MODE) {
+      // Demo fallback — works without MySQL
+      localStorage.setItem('sb_token', 'demo-token-' + Date.now())
+      localStorage.setItem('sb_me', JSON.stringify({ name: document.getElementById('biz-name').value, trader_tier: 'new' }))
+      document.getElementById('register-form').style.display = 'none'
+      document.getElementById('success-state').style.display = ''
+      return
+    }
+
+    try {
+      const payload = {
+        name:        document.getElementById('biz-name').value.trim(),
+        category:    document.getElementById('biz-category').value,
+        zone:        document.getElementById('biz-zone').value,
+        tagline:     document.getElementById('biz-tagline').value.trim(),
+        whatsapp:    wa,
+        phone:       document.getElementById('biz-phone').value.trim() || null,
+        password:    pw,
+      }
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Registration failed')
+      localStorage.setItem('sb_token', data.token)
+      localStorage.setItem('sb_me', JSON.stringify(data.business))
+      document.getElementById('register-form').style.display = 'none'
+      document.getElementById('success-state').style.display = ''
+    } catch (err) {
+      window.toast && window.toast('⚠ ' + err.message)
+      if (btn) { btn.disabled = false; btn.textContent = 'Register Free →' }
+    }
   }
 
   // ── Login ─────────────────────────────────────────────────────
-  function submitLogin() {
+  async function submitLogin() {
     const wa = document.getElementById('login-whatsapp').value.trim()
     const pw = document.getElementById('login-password').value
     if (!wa || !pw) { window.toast && window.toast('Fill in both fields'); return }
-    localStorage.setItem('sb_token', 'demo-token-' + Date.now())
-    localStorage.setItem('sb_me', JSON.stringify({ name: 'Demo Business', tier: 'gold' }))
-    window.toast && window.toast('Logged in! Redirecting…')
-    setTimeout(() => window.location.href = 'network.html', 1200)
+
+    const btn = document.querySelector('#login-form .btn-primary')
+    if (btn) { btn.disabled = true; btn.textContent = 'Logging in…' }
+
+    await window.serverCheck
+
+    if (window.DEMO_MODE) {
+      // Demo fallback
+      localStorage.setItem('sb_token', 'demo-token-' + Date.now())
+      localStorage.setItem('sb_me', JSON.stringify({ name: 'Demo Business', trader_tier: 'gold' }))
+      window.toast && window.toast('Logged in! Redirecting… (demo mode)')
+      setTimeout(() => window.location.href = 'network.html', 1200)
+      return
+    }
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ whatsapp: wa, password: pw }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Login failed')
+      localStorage.setItem('sb_token', data.token)
+      localStorage.setItem('sb_me', JSON.stringify(data.business))
+      window.toast && window.toast('Welcome back! Redirecting…')
+      setTimeout(() => window.location.href = 'network.html', 900)
+    } catch (err) {
+      window.toast && window.toast('⚠ ' + err.message)
+      if (btn) { btn.disabled = false; btn.textContent = 'Log In' }
+    }
   }
 </script>
 </body>

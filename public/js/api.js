@@ -85,10 +85,22 @@ const Board = {
   respond(postId, message) {
     return apiFetch(`/board/${postId}/respond`, { method: 'POST', body: JSON.stringify({ message }) })
   },
-  deals()         { return apiFetch('/board/deals') },
-  updateDeal(id, status) {
-    return apiFetch(`/board/deals/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) })
+  myPosts()       { return apiFetch('/board/my-posts') },
+  deletePost(id)  { return apiFetch(`/board/${id}`, { method: 'DELETE' }) },
+  transactions()  { return apiFetch('/board/transactions') },
+  updateTransaction(id, status, amount) {
+    return apiFetch(`/board/transactions/${id}`, { method: 'PATCH', body: JSON.stringify({ status, amount }) })
   },
+  // backward compat aliases
+  deals()         { return this.transactions() },
+  updateDeal(id, status) { return this.updateTransaction(id, status) },
 }
 
-export { Auth, Businesses, Board, isLoggedIn, getMe }
+// ── Businesses — add profile update ───────────────────────────
+Object.assign(Businesses, {
+  updateProfile(payload) {
+    return apiFetch('/businesses/me/profile', { method: 'PUT', body: JSON.stringify(payload) })
+  },
+})
+
+export { Auth, Businesses, Board, isLoggedIn, getMe, getToken, setToken, setMe }

@@ -4,8 +4,25 @@
 // ─────────────────────────────────────────────────────────────
 
 // ── DEMO_MODE: true = use mock data (no server needed) ────────
-//  Set to false when Express + MySQL server is running.
+//  Auto-detected at runtime. Starts true, flipped to false if
+//  the Express server responds on /api/health.
 window.DEMO_MODE = true
+
+// ── Server auto-detection ─────────────────────────────────────
+//  Ping /api/health with a 2-second timeout.
+//  Pages await window.serverCheck before loading data so they
+//  know whether to use mock data or the real API.
+window.serverCheck = fetch('/api/health', {
+  signal: AbortSignal.timeout(2000),
+  cache:  'no-store',
+}).then(r => {
+  if (r.ok) {
+    window.DEMO_MODE = false
+    console.log('[SondelaBiz] ✓ Server online — using real API')
+  }
+}).catch(() => {
+  console.log('[SondelaBiz] ℹ Server not reachable — demo mode')
+})
 
 // ── Mock data for hackathon demo ──────────────────────────────
 window.MOCK_BUSINESSES = [
