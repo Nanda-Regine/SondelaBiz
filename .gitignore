@@ -42,3 +42,16 @@ yarn-error.log*
 *.pdf
 
 .vercel
+
+# Old Next.js files (superseded by Express + static HTML)
+app/
+components/
+lib/
+data/
+next.config.*
+tailwind.config.*
+tsconfig.json
+postcss.config.*
+.next/
+out/
+
