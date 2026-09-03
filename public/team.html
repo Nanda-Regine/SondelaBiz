@@ -277,6 +277,24 @@
       Everything you need to build, debug, demo, and ship SondelaBiz in 24 hours.
       Read this before you write a single line of code.
     </p>
+
+    <!-- ── WHAT'S NEW BANNER ───────────────────────────────── -->
+    <div id="whats-new" style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.2);border-radius:var(--r-md);scroll-margin-top:80px">
+      <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.85rem">
+        <span style="font-size:1rem">🎉</span>
+        <span style="font-family:'Unbounded',sans-serif;font-size:0.75rem;font-weight:700;color:var(--lime)">SESSION 2 UPDATE — BACKEND + API WIRING COMPLETE</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0.5rem">
+        <div style="font-size:0.82rem;color:var(--text-2)">✅ <strong style="color:var(--text-1)">server/routes/businesses.js</strong> — rewritten, Express routing bug fixed, FULLTEXT + LIKE search, PUT /me/profile</div>
+        <div style="font-size:0.82rem;color:var(--text-2)">✅ <strong style="color:var(--text-1)">server/routes/board.js</strong> — fully complete: GET, POST, respond, delete, transactions, trade confirm</div>
+        <div style="font-size:0.82rem;color:var(--text-2)">✅ <strong style="color:var(--text-1)">DEMO_MODE auto-detection</strong> — server pinged on load; pages switch automatically. No manual flag change needed.</div>
+        <div style="font-size:0.82rem;color:var(--text-2)">✅ <strong style="color:var(--text-1)">join.html</strong> — register + login wired to real /api/auth/* with loading states</div>
+        <div style="font-size:0.82rem;color:var(--text-2)">✅ <strong style="color:var(--text-1)">directory.html</strong> — fetches /api/businesses on load; live search hits server</div>
+        <div style="font-size:0.82rem;color:var(--text-2)">✅ <strong style="color:var(--text-1)">board.html</strong> — Post, Respond buttons call real API; reload after post</div>
+        <div style="font-size:0.82rem;color:var(--text-2)">✅ <strong style="color:var(--text-1)">network.html</strong> — loads real profile, trades &amp; posts; Confirm + Remove + Save Profile all wired</div>
+      </div>
+      <div style="margin-top:0.85rem;font-size:0.8rem;color:var(--text-3)">All committed &amp; pushed to <code>main</code> — Vercel redeploy triggered. Demo mode still works on Vercel (no MySQL). Real API kicks in automatically when you run <code>npm run dev</code> locally.</div>
+    </div>
   </div>
 
   <div class="hq-layout">
@@ -284,6 +302,7 @@
     <nav class="toc" aria-label="Table of contents">
       <div class="toc-title">On this page</div>
       <a href="#links">🌐 Live Links</a>
+      <a href="#whats-new" style="color:var(--lime)">🎉 What's New</a>
       <a href="#what-we-built">🏗 What We Built</a>
       <a href="#file-map">📁 File Map</a>
       <a href="#team-roles">👥 Team Roles</a>
@@ -396,8 +415,8 @@
             <tr><td>pitch.html</td><td>Hackathon brief for judges: problem, solution, pricing, SDGs, team</td><td>Lekgothe</td></tr>
             <tr><td>team.html</td><td>This page — internal team guide</td><td>Everyone</td></tr>
             <tr><td>css/main.css</td><td>Full design system: glassmorphism, 7 colours, fonts, badges, mobile CSS</td><td>Xolani</td></tr>
-            <tr><td>js/app.js</td><td>Shared utilities, mock data, scroll animations, toast notifications</td><td>Lindokuhle</td></tr>
-            <tr><td>js/api.js</td><td>API client — switch on when MySQL is running (DEMO_MODE=false)</td><td>Lindokuhle</td></tr>
+            <tr><td>js/app.js</td><td>Shared utilities, mock data, scroll animations, toast. Includes <code>window.serverCheck</code> — auto-pings server on load and sets DEMO_MODE</td><td>Lindokuhle</td></tr>
+            <tr><td>js/api.js</td><td>Full API client: Auth, Businesses (list/get/me/review/updateProfile), Board (list/create/respond/myPosts/transactions/updateTransaction/deletePost). Import or call via window.</td><td>Lindokuhle</td></tr>
           </tbody>
         </table>
 
@@ -440,12 +459,13 @@
             <div class="person-role">Team Lead · Backend · DB</div>
             <div class="person-tasks">
               ✓ server/index.js<br>
-              ✓ db/schema.sql<br>
-              ✓ db/seed.js<br>
+              ✓ db/schema.sql + seed.js<br>
               ✓ routes/auth.js<br>
-              ✓ js/app.js + api.js<br>
-              → Wire join.html to real API<br>
-              → Set up local MySQL + .env
+              ✓ js/app.js (auto-detect + mock data)<br>
+              ✓ js/api.js (full API client)<br>
+              ✓ join.html wired to real API<br>
+              → Set up local MySQL + .env<br>
+              → Test register → login → dashboard flow
             </div>
           </div>
           <div class="person-card" style="border-color:rgba(41,121,255,0.25)">
@@ -455,10 +475,11 @@
             <div class="person-tasks">
               ✓ css/main.css design system<br>
               ✓ Navbar + hamburger menu<br>
-              → Polish mobile layout<br>
-              → Add hover effects<br>
-              → Fix any visual bugs<br>
-              → Make index.html shine
+              ✓ Mobile responsive layout<br>
+              ✓ Scroll performance (GPU, blur reduced)<br>
+              → Final visual polish on index.html<br>
+              → Add hover micro-interactions<br>
+              → Check for any visual bugs pre-demo
             </div>
           </div>
           <div class="person-card" style="border-color:rgba(0,230,118,0.25)">
@@ -467,11 +488,12 @@
             <div class="person-role">Public Pages</div>
             <div class="person-tasks">
               ✓ directory.html<br>
-              ✓ routes/businesses.js<br>
-              → Connect search to real API<br>
-              → Test category filters<br>
+              ✓ routes/businesses.js (rewritten)<br>
+              ✓ Search wired to real API (live params)<br>
+              ✓ Context-aware empty states<br>
+              → Test category + zone + tier filters<br>
               → Test profile modal on mobile<br>
-              → Add more demo businesses
+              → Add more businesses to seed.js if needed
             </div>
           </div>
           <div class="person-card" style="border-color:rgba(255,214,0,0.25)">
@@ -479,13 +501,13 @@
             <div class="person-name">Amahle Axola</div>
             <div class="person-role">B2B Network</div>
             <div class="person-tasks">
-              ✓ board.html<br>
-              ✓ network.html<br>
-              ✓ routes/board.js<br>
-              → Wire "Post" button to real API<br>
-              → Wire "Respond" to real API<br>
-              → Wire trade confirm to API<br>
-              → Test full board flow
+              ✓ board.html (Post + Respond wired)<br>
+              ✓ network.html (trades + posts + profile wired)<br>
+              ✓ routes/board.js (complete rewrite)<br>
+              ✓ Trade confirm → PATCH /transactions/:id<br>
+              ✓ Remove post → DELETE /board/:id<br>
+              ✓ Save profile → PUT /businesses/me/profile<br>
+              → Test full board post → respond → confirm flow
             </div>
           </div>
           <div class="person-card" style="border-color:rgba(255,61,0,0.25)">
@@ -494,11 +516,11 @@
             <div class="person-role">Pitch · Deploy</div>
             <div class="person-tasks">
               ✓ pitch.html<br>
-              ✓ Vercel deployment<br>
+              ✓ Vercel deployment (static)<br>
               → Polish pitch with screenshots<br>
-              → Prepare the 3-min demo<br>
-              → Deploy backend to Railway<br>
-              → Update team.html live links
+              → Rehearse the 3-min demo script<br>
+              → Deploy backend to Railway (optional)<br>
+              → Update live links if domain changes
             </div>
           </div>
         </div>
@@ -548,14 +570,22 @@ JWT_EXPIRES_IN=7d</pre>
         <pre>npm run dev</pre>
         <p>Open <strong>http://localhost:3000</strong> — you should see the homepage.</p>
 
-        <h3>Step 7 — Switch off DEMO_MODE</h3>
-        <p>In <code>public/js/app.js</code>, line 5, change:</p>
-        <pre>window.DEMO_MODE = true   // ← change to false</pre>
-        <p>Now the pages use real API data instead of mock data.</p>
+        <h3>Step 7 — Start the server (auto-detection handles the rest)</h3>
+        <p><strong>You no longer need to manually change DEMO_MODE.</strong> The frontend now pings <code>/api/health</code> on every page load. If the server answers → it switches to real API automatically. If it doesn't → mock data. Zero config.</p>
+        <pre># In one terminal:
+npm run dev          # starts Express on :3000
+
+# Now open http://localhost:3000 in your browser.
+# Check the browser console — you should see:
+# [SondelaBiz] ✓ Server online — using real API</pre>
 
         <div class="tip green">
           <span class="tip-icon">💡</span>
-          <div class="tip-body"><strong>Can't set up MySQL right now?</strong> No problem — open any HTML file directly in your browser. Everything works with DEMO_MODE=true. Build the UI first, wire the API later.</div>
+          <div class="tip-body"><strong>Can't set up MySQL right now?</strong> No problem — open any HTML file directly in your browser (double-click it, or use Live Server). Everything works on mock data. The auto-detection just falls back silently.</div>
+        </div>
+        <div class="tip blue">
+          <span class="tip-icon">🔎</span>
+          <div class="tip-body"><strong>To force demo mode</strong> for testing: in <code>public/js/app.js</code>, set <code>window.DEMO_MODE = true</code> <em>after</em> the serverCheck line (so it overrides whatever the ping found).</div>
         </div>
       </section>
 
@@ -776,10 +806,11 @@ docs: update README setup instructions</pre>
         <table class="hq-table">
           <thead><tr><th>Method</th><th>Endpoint</th><th>Auth?</th><th>Notes</th></tr></thead>
           <tbody>
-            <tr><td>GET</td><td>/api/businesses</td><td>No</td><td>Query: q, category, zone, limit, offset</td></tr>
-            <tr><td>GET</td><td>/api/businesses/:id</td><td>No</td><td>Includes offers, needs, reviews</td></tr>
-            <tr><td>GET</td><td>/api/businesses/me/profile</td><td>✅ Yes</td><td>Your own full profile</td></tr>
-            <tr><td>POST</td><td>/api/businesses/review/:id</td><td>✅ Yes</td><td>Body: rating (1–5), comment, transactionId</td></tr>
+            <tr><td>GET</td><td>/api/businesses</td><td>No</td><td>Query: q, category, zone, <strong>tier</strong>, limit, offset. Short searches (&lt;4 chars) use LIKE fallback automatically.</td></tr>
+            <tr><td>GET</td><td>/api/businesses/:id</td><td>No</td><td>Includes offers, needs, and last 10 reviews</td></tr>
+            <tr><td>GET</td><td>/api/businesses/me/profile</td><td>✅ Yes</td><td>⚠️ Must be defined BEFORE /:id in Express (already is)</td></tr>
+            <tr><td>PUT</td><td>/api/businesses/me/profile</td><td>✅ Yes</td><td>Body: name, tagline, description, phone, address, zone. Partial updates safe.</td></tr>
+            <tr><td>POST</td><td>/api/businesses/review/:id</td><td>✅ Yes</td><td>Body: rating (1–5), comment, transactionId. Triggers auto-tier update.</td></tr>
           </tbody>
         </table>
 
@@ -787,13 +818,20 @@ docs: update README setup instructions</pre>
         <table class="hq-table">
           <thead><tr><th>Method</th><th>Endpoint</th><th>Auth?</th><th>Notes</th></tr></thead>
           <tbody>
-            <tr><td>GET</td><td>/api/board</td><td>No</td><td>Query: type=need|offer, limit, offset</td></tr>
+            <tr><td>GET</td><td>/api/board</td><td>No</td><td>Query: type=need|offer, limit, offset. Urgent posts sort first.</td></tr>
             <tr><td>POST</td><td>/api/board</td><td>✅ Yes</td><td>Body: type, title, description, budget, isUrgent</td></tr>
-            <tr><td>POST</td><td>/api/board/:id/respond</td><td>✅ Yes</td><td>Body: message. Auto-creates a transaction.</td></tr>
-            <tr><td>GET</td><td>/api/board/transactions</td><td>✅ Yes</td><td>All your trades (sent + received)</td></tr>
-            <tr><td>PATCH</td><td>/api/board/transactions/:id</td><td>✅ Yes</td><td>Body: status (pending/agreed/complete/cancelled)</td></tr>
+            <tr><td>GET</td><td>/api/board/my-posts</td><td>✅ Yes</td><td>Your own posts (for dashboard My Posts panel)</td></tr>
+            <tr><td>POST</td><td>/api/board/:id/respond</td><td>✅ Yes</td><td>Body: message. Auto-creates a pending transaction record.</td></tr>
+            <tr><td>DELETE</td><td>/api/board/:id</td><td>✅ Yes</td><td>Soft-delete — sets deleted_at + is_active=false. Only your own posts.</td></tr>
+            <tr><td>GET</td><td>/api/board/transactions</td><td>✅ Yes</td><td>All your trades (buyer + seller side)</td></tr>
+            <tr><td>PATCH</td><td>/api/board/transactions/:id</td><td>✅ Yes</td><td>Body: status (pending/negotiating/agreed/complete/cancelled). "complete" increments both parties' completed_deals.</td></tr>
           </tbody>
         </table>
+
+        <div class="tip red">
+          <span class="tip-icon">⚠️</span>
+          <div class="tip-body"><strong>Express routing order matters.</strong> In routes/board.js and routes/businesses.js, named routes like <code>/my-posts</code> and <code>/me/profile</code> <em>must</em> appear <strong>before</strong> the <code>/:id</code> wildcard. If <code>/:id</code> is first, Express treats "me" and "my-posts" as IDs and you'll get wrong results. This is already correct in the repo — don't reorder these routes.</div>
+        </div>
 
         <h3>How to test with curl</h3>
         <pre># Register a new business
@@ -943,6 +981,22 @@ curl "http://localhost:3000/api/businesses?category=plumber"</pre>
             <tr>
               <td>CSS changes not showing</td>
               <td>Hard reload: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac). Browser may be caching old CSS.</td>
+            </tr>
+            <tr>
+              <td>GET /api/businesses/me/profile returns "Business not found" or matches wrong ID</td>
+              <td><strong>Express routing order bug.</strong> The <code>/me/profile</code> route must be defined <em>before</em> <code>/:id</code> in routes/businesses.js. If <code>/:id</code> comes first, Express treats "me" as an ID. Already fixed in the repo — only an issue if someone reorders the routes.</td>
+            </tr>
+            <tr>
+              <td>Search returns no results for short words like "spa" or "car"</td>
+              <td>MySQL FULLTEXT search ignores words under 4 characters by default. The route now automatically falls back to LIKE for queries under 4 chars — no action needed. If you're testing raw SQL, use: <code>WHERE name LIKE '%spa%'</code></td>
+            </tr>
+            <tr>
+              <td>[SondelaBiz] Server online — but pages still show mock data</td>
+              <td>The health ping worked but a later API call failed. Open F12 → Network tab → look for failed red /api/* requests. Usually a missing JWT token (not logged in) or a DB query error. Check the server terminal for the error message.</td>
+            </tr>
+            <tr>
+              <td>window.serverCheck is not a function / undefined</td>
+              <td><code>app.js</code> hasn't loaded yet when your inline script runs. Make sure <code>&lt;script src="js/app.js" type="module"&gt;&lt;/script&gt;</code> appears in the HTML <em>before</em> your page script uses <code>await window.serverCheck</code>.</td>
             </tr>
           </tbody>
         </table>
