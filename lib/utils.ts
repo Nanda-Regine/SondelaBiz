@@ -1,10 +1,8 @@
-import { type ClassValue, clsx } from 'clsx'
 import type { TraderTier, Business } from './types'
 
 // cn() — merge Tailwind classes safely
 // Usage: cn('px-4', condition && 'bg-green-500', className)
-export function cn(...inputs: ClassValue[]) {
-  // Simple implementation without clsx dependency
+export function cn(...inputs: (string | boolean | null | undefined)[]): string {
   return inputs
     .flat()
     .filter(Boolean)
