@@ -85,6 +85,63 @@
       .join-right { padding: 1.5rem 1.25rem; max-width: 100%; }
     }
 
+    /* Mobile social proof strip — shown above form on small screens */
+    .mobile-proof {
+      display: none;
+      background: linear-gradient(135deg, rgba(224,64,251,0.07), rgba(41,121,255,0.05));
+      border: 1px solid rgba(224,64,251,0.15);
+      border-radius: var(--r-md);
+      padding: 1rem 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 768px) { .mobile-proof { display: block; } }
+    .mobile-proof-stats {
+      display: flex; gap: 0; margin-bottom: 0.75rem;
+    }
+    .mp-stat {
+      flex: 1; text-align: center; padding: 0 0.5rem;
+      border-right: 1px solid var(--border);
+    }
+    .mp-stat:last-child { border-right: none; }
+    .mp-num { display: block; font-family: 'Unbounded', sans-serif; font-size: 0.8rem; font-weight: 900; color: var(--fuchsia); }
+    .mp-label { display: block; font-size: 0.65rem; color: var(--text-3); margin-top: 0.1rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .mobile-proof-tier {
+      display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.5rem;
+    }
+    .mp-arrow { color: var(--text-3); font-size: 0.7rem; }
+    .mobile-proof-sub { font-size: 0.72rem; color: var(--text-3); margin: 0; }
+
+    /* Inline field validation */
+    .field-error-msg {
+      display: none; font-size: 0.72rem; color: var(--crimson);
+      margin-top: 0.2rem; line-height: 1.4;
+    }
+    .field-group.has-error .field-error-msg { display: block; }
+    .field-group.has-error .input {
+      border-color: rgba(255,61,0,0.55);
+      box-shadow: 0 0 0 3px rgba(255,61,0,0.08);
+    }
+    .field-group.is-valid .input {
+      border-color: rgba(0,230,118,0.45);
+    }
+    .field-group.is-valid .input:focus {
+      box-shadow: 0 0 0 3px rgba(0,230,118,0.1);
+    }
+
+    /* Password strength bar */
+    .pw-strength { margin-top: 0.4rem; display: none; }
+    .pw-strength-bar {
+      height: 3px; border-radius: 2px;
+      background: var(--surface-3);
+      overflow: hidden; margin-bottom: 0.3rem;
+    }
+    .pw-strength-fill {
+      height: 100%; border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+      width: 0%;
+    }
+    .pw-strength-label { font-size: 0.68rem; color: var(--text-3); }
+
     /* Trust preview */
     .trust-preview {
       background: var(--surface-1);
@@ -139,6 +196,25 @@
 
   <!-- ── Right form panel ── -->
   <div class="join-right">
+    <!-- Mobile social proof (replaces hidden left panel on phones) -->
+    <div class="mobile-proof">
+      <div class="mobile-proof-stats">
+        <div class="mp-stat"><span class="mp-num">170k+</span><span class="mp-label">Residents</span></div>
+        <div class="mp-stat"><span class="mp-num">Free</span><span class="mp-label">Always</span></div>
+        <div class="mp-stat"><span class="mp-num">1-tap</span><span class="mp-label">WhatsApp</span></div>
+      </div>
+      <div class="mobile-proof-tier">
+        <span class="badge tier-new">New</span>
+        <span class="mp-arrow">→</span>
+        <span class="badge tier-bronze">🥉 Bronze</span>
+        <span class="mp-arrow">→</span>
+        <span class="badge tier-silver">🥈 Silver</span>
+        <span class="mp-arrow">→</span>
+        <span class="badge tier-gold">🥇 Gold</span>
+      </div>
+      <p class="mobile-proof-sub">Build your reputation with every verified trade</p>
+    </div>
+
     <!-- Auth tabs -->
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-register" onclick="showTab('register')">Register Free</button>
@@ -159,14 +235,17 @@
         <h2 style="font-size:1.3rem;margin-bottom:0.25rem">Business details</h2>
         <p class="text-sm text-muted" style="margin-bottom:1.5rem">Tell us about your business</p>
 
-        <div class="field-group">
+        <div class="field-group" id="fg-name">
           <label class="field-label" for="biz-name">Business Name *</label>
-          <input id="biz-name" type="text" class="input" placeholder="e.g. ABC Salon">
+          <input id="biz-name" type="text" class="input" placeholder="e.g. ABC Salon"
+            oninput="liveValidate('fg-name','biz-name','text')"
+            onblur="liveValidate('fg-name','biz-name','text')">
+          <span class="field-error-msg">Please enter your business name</span>
         </div>
 
-        <div class="field-group">
+        <div class="field-group" id="fg-cat">
           <label class="field-label" for="biz-category">Category *</label>
-          <select id="biz-category" class="input">
+          <select id="biz-category" class="input" onchange="liveValidate('fg-cat','biz-category','select')">
             <option value="">Select category…</option>
             <option value="salon">Hair & Beauty</option>
             <option value="plumber">Plumbing</option>
@@ -177,11 +256,12 @@
             <option value="retail">Retail & Spaza</option>
             <option value="transport">Transport</option>
           </select>
+          <span class="field-error-msg">Please select a category</span>
         </div>
 
-        <div class="field-group">
+        <div class="field-group" id="fg-zone">
           <label class="field-label" for="biz-zone">Location (Mdantsane Zone) *</label>
-          <select id="biz-zone" class="input">
+          <select id="biz-zone" class="input" onchange="liveValidate('fg-zone','biz-zone','select')">
             <option value="">Select zone…</option>
             <option>Unit 2</option><option>Unit 2 Hi-Way</option><option>Unit 3</option>
             <option>Unit 4</option><option>Unit 5</option><option>Unit 6</option>
@@ -189,11 +269,16 @@
             <option>Unit 10</option><option>Unit 11</option><option>Unit 12</option>
             <option>Unit 14</option><option>Unit 15</option><option>Unit 21</option>
           </select>
+          <span class="field-error-msg">Please select your zone</span>
         </div>
 
         <div class="field-group">
-          <label class="field-label" for="biz-tagline">Tagline (one sentence)</label>
-          <input id="biz-tagline" type="text" class="input" placeholder="e.g. Fast, affordable hair braiding in Unit 4">
+          <label class="field-label" for="biz-tagline">
+            Tagline (one sentence)
+            <span id="tagline-counter" style="float:right;color:var(--text-3);font-weight:400">0/60</span>
+          </label>
+          <input id="biz-tagline" type="text" class="input" placeholder="e.g. Fast, affordable hair braiding in Unit 4"
+            maxlength="60" oninput="document.getElementById('tagline-counter').textContent=this.value.length+'/60'">
         </div>
 
         <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem" onclick="goStep2()">
@@ -206,19 +291,27 @@
         <h2 style="font-size:1.3rem;margin-bottom:0.25rem">Contact & login</h2>
         <p class="text-sm text-muted" style="margin-bottom:1.5rem">How customers and businesses will reach you</p>
 
-        <div class="field-group">
-          <label class="field-label" for="biz-whatsapp">WhatsApp Number * <span class="text-dim">(27XXXXXXXXX)</span></label>
-          <input id="biz-whatsapp" type="tel" class="input" placeholder="27712345678">
+        <div class="field-group" id="fg-wa">
+          <label class="field-label" for="biz-whatsapp">WhatsApp Number * <span style="color:var(--text-3);font-weight:400">27XXXXXXXXX</span></label>
+          <input id="biz-whatsapp" type="tel" class="input" placeholder="27712345678"
+            oninput="formatWA(this)" onblur="liveValidate('fg-wa','biz-whatsapp','wa')">
+          <span class="field-error-msg">Enter a valid number starting with 27 (e.g. 27712345678)</span>
         </div>
 
         <div class="field-group">
-          <label class="field-label" for="biz-phone">Phone Number (optional)</label>
+          <label class="field-label" for="biz-phone">Phone Number <span style="color:var(--text-3);font-weight:400">optional</span></label>
           <input id="biz-phone" type="tel" class="input" placeholder="07X XXX XXXX">
         </div>
 
-        <div class="field-group">
+        <div class="field-group" id="fg-pw">
           <label class="field-label" for="biz-password">Password *</label>
-          <input id="biz-password" type="password" class="input" placeholder="Min. 8 characters">
+          <input id="biz-password" type="password" class="input" placeholder="Min. 8 characters"
+            oninput="checkStrength(this.value)" onblur="liveValidate('fg-pw','biz-password','pw')">
+          <div class="pw-strength" id="pw-strength">
+            <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill"></div></div>
+            <span class="pw-strength-label" id="pw-label">Too short</span>
+          </div>
+          <span class="field-error-msg">Password must be at least 8 characters</span>
         </div>
 
         <div style="display:flex;gap:0.75rem;margin-top:0.75rem">
@@ -272,6 +365,7 @@
 
 <script src="js/app.js" type="module"></script>
 <script>
+  // ── Tab switching ─────────────────────────────────────────────
   function showTab(tab) {
     document.getElementById('register-form').style.display = tab === 'register' ? '' : 'none'
     document.getElementById('login-form').style.display    = tab === 'login'    ? '' : 'none'
@@ -279,16 +373,76 @@
     document.getElementById('tab-login').classList.toggle('active',    tab === 'login')
   }
 
+  // ── Inline validation ─────────────────────────────────────────
+  function liveValidate(groupId, inputId, type) {
+    const group = document.getElementById(groupId)
+    const input = document.getElementById(inputId)
+    if (!group || !input) return
+    let valid = false
+    const val = input.value.trim()
+    if (type === 'text')   valid = val.length > 0
+    if (type === 'select') valid = val !== ''
+    if (type === 'wa')     valid = /^27\d{9}$/.test(val.replace(/\s/g,''))
+    if (type === 'pw')     valid = input.value.length >= 8
+    group.classList.toggle('has-error', !valid && val !== '')
+    group.classList.toggle('is-valid',   valid)
+  }
+
+  // ── WhatsApp formatter ────────────────────────────────────────
+  function formatWA(input) {
+    // Auto-prepend 27 if user types 0
+    let v = input.value.replace(/[^\d]/g, '')
+    if (v.startsWith('0')) v = '27' + v.slice(1)
+    input.value = v
+    liveValidate('fg-wa', 'biz-whatsapp', 'wa')
+  }
+
+  // ── Password strength ─────────────────────────────────────────
+  function checkStrength(pw) {
+    const bar   = document.getElementById('pw-fill')
+    const label = document.getElementById('pw-label')
+    const wrap  = document.getElementById('pw-strength')
+    if (!bar) return
+    wrap.style.display = pw.length > 0 ? 'block' : 'none'
+    let score = 0
+    if (pw.length >= 8)  score++
+    if (pw.length >= 12) score++
+    if (/[A-Z]/.test(pw)) score++
+    if (/[0-9]/.test(pw)) score++
+    if (/[^A-Za-z0-9]/.test(pw)) score++
+    const levels = [
+      { w:'20%', bg:'var(--crimson)', t:'Too weak' },
+      { w:'40%', bg:'var(--crimson)', t:'Weak' },
+      { w:'60%', bg:'var(--volt)',    t:'Fair' },
+      { w:'80%', bg:'var(--lime)',    t:'Good' },
+      { w:'100%',bg:'var(--lime)',    t:'Strong ✓' },
+    ]
+    const lv = levels[Math.min(score, 4)]
+    bar.style.width      = lv.w
+    bar.style.background = lv.bg
+    label.textContent    = lv.t
+    label.style.color    = lv.bg
+  }
+
+  // ── Step navigation ───────────────────────────────────────────
   function goStep2() {
-    const name = document.getElementById('biz-name').value.trim()
-    const cat  = document.getElementById('biz-category').value
-    const zone = document.getElementById('biz-zone').value
-    if (!name || !cat || !zone) { window.toast && window.toast('Please fill in all required fields'); return }
+    const nameValid = document.getElementById('biz-name').value.trim().length > 0
+    const catValid  = document.getElementById('biz-category').value !== ''
+    const zoneValid = document.getElementById('biz-zone').value !== ''
+    // Trigger error states on empty required fields
+    if (!nameValid) document.getElementById('fg-name').classList.add('has-error')
+    if (!catValid)  document.getElementById('fg-cat').classList.add('has-error')
+    if (!zoneValid) document.getElementById('fg-zone').classList.add('has-error')
+    if (!nameValid || !catValid || !zoneValid) {
+      window.toast && window.toast('Please fill in all required fields')
+      return
+    }
     document.getElementById('step-1').style.display = 'none'
     document.getElementById('step-2').style.display = ''
     document.getElementById('dot-1').className = 'step-dot done'
     document.getElementById('dot-2').className = 'step-dot active'
   }
+
   function goStep1() {
     document.getElementById('step-2').style.display = 'none'
     document.getElementById('step-1').style.display = ''
@@ -296,25 +450,26 @@
     document.getElementById('dot-2').className = 'step-dot'
   }
 
+  // ── Submit registration ───────────────────────────────────────
   function submitRegister() {
-    const wa  = document.getElementById('biz-whatsapp').value.trim()
-    const pw  = document.getElementById('biz-password').value
-    if (!wa)           { window.toast && window.toast('WhatsApp number is required'); return }
-    if (pw.length < 8) { window.toast && window.toast('Password must be at least 8 characters'); return }
-
-    // Demo mode: simulate success
+    const wa = document.getElementById('biz-whatsapp').value.trim()
+    const pw = document.getElementById('biz-password').value
+    const waValid = /^27\d{9}$/.test(wa.replace(/\s/g,''))
+    const pwValid = pw.length >= 8
+    if (!waValid) { document.getElementById('fg-wa').classList.add('has-error'); window.toast && window.toast('Check your WhatsApp number'); return }
+    if (!pwValid) { document.getElementById('fg-pw').classList.add('has-error'); window.toast && window.toast('Password must be at least 8 characters'); return }
+    // Demo: simulate success
     localStorage.setItem('sb_token', 'demo-token-' + Date.now())
     localStorage.setItem('sb_me', JSON.stringify({ name: document.getElementById('biz-name').value, tier: 'new' }))
     document.getElementById('register-form').style.display = 'none'
     document.getElementById('success-state').style.display = ''
   }
 
+  // ── Login ─────────────────────────────────────────────────────
   function submitLogin() {
     const wa = document.getElementById('login-whatsapp').value.trim()
     const pw = document.getElementById('login-password').value
     if (!wa || !pw) { window.toast && window.toast('Fill in both fields'); return }
-
-    // Demo mode: accept any credentials
     localStorage.setItem('sb_token', 'demo-token-' + Date.now())
     localStorage.setItem('sb_me', JSON.stringify({ name: 'Demo Business', tier: 'gold' }))
     window.toast && window.toast('Logged in! Redirecting…')

@@ -79,7 +79,6 @@
       <li><a href="directory.html">Find Business</a></li>
       <li><a href="board.html" class="active">I Need / I Offer</a></li>
       <li><a href="network.html">My Network</a></li>
-      <li><a href="team.html">Team HQ</a></li>
     </ul>
     <div class="nav-actions">
       <a id="nav-login" href="join.html" class="btn btn-glass btn-sm">Log in</a>
@@ -96,7 +95,6 @@
     <li><a href="directory.html">Find Business</a></li>
     <li><a href="board.html" class="active">I Need / I Offer</a></li>
     <li><a href="network.html">My Network</a></li>
-    <li><a href="team.html">Team HQ</a></li>
   </ul>
   <div class="nav-drawer-actions">
     <a href="join.html" class="btn btn-primary btn-sm">+ New Post</a>
@@ -246,8 +244,24 @@
       layout.style.gridTemplateColumns = '1fr'
     }
 
-    needEl.innerHTML  = (currentTab !== 'offer' ? needPosts  : []).map(renderPost).join('')
-    offerEl.innerHTML = (currentTab !== 'need'  ? offerPosts : []).map(renderPost).join('')
+    const needVisible  = currentTab !== 'offer' ? needPosts  : []
+    const offerVisible = currentTab !== 'need'  ? offerPosts : []
+    needEl.innerHTML  = needVisible.length  ? needVisible.map(renderPost).join('')  : emptyCol('need')
+    offerEl.innerHTML = offerVisible.length ? offerVisible.map(renderPost).join('') : emptyCol('offer')
+  }
+
+  function emptyCol(type) {
+    const isNeed = type === 'need'
+    return `
+      <div style="text-align:center;padding:2.5rem 1rem;border:1px dashed var(--border);border-radius:var(--r-md)">
+        <div style="font-size:2rem;margin-bottom:0.6rem">${isNeed ? '🛒' : '📦'}</div>
+        <p style="font-size:0.85rem;color:var(--text-3);margin:0 0 0.85rem">
+          ${isNeed ? 'No requests posted yet' : 'No offers posted yet'}
+        </p>
+        <button class="btn btn-glass btn-sm" onclick="openNewPost()" style="font-size:0.78rem">
+          + Post ${isNeed ? 'a Need' : 'an Offer'}
+        </button>
+      </div>`
   }
 
   function renderPost(p) {

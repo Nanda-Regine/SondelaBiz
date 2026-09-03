@@ -92,7 +92,6 @@
       <li><a href="directory.html" class="active">Find Business</a></li>
       <li><a href="board.html">I Need / I Offer</a></li>
       <li><a href="network.html">My Network</a></li>
-      <li><a href="team.html">Team HQ</a></li>
     </ul>
     <div class="nav-actions">
       <a id="nav-login" href="join.html" class="btn btn-glass btn-sm">Log in</a>
@@ -109,7 +108,6 @@
     <li><a href="directory.html" class="active">Find Business</a></li>
     <li><a href="board.html">I Need / I Offer</a></li>
     <li><a href="network.html">My Network</a></li>
-    <li><a href="team.html">Team HQ</a></li>
   </ul>
   <div class="nav-drawer-actions">
     <a href="join.html" class="btn btn-primary btn-sm">Register Free</a>
@@ -161,9 +159,17 @@
         <span class="badge badge-fuchsia" id="active-filter-label" style="display:none"></span>
       </div>
       <div class="grid-auto" id="results-grid"></div>
-      <div id="empty-state" style="display:none;text-align:center;padding:3rem 0">
-        <p style="font-size:2rem">🔍</p>
-        <p class="text-muted mt-sm">No businesses found. Try a different search or filter.</p>
+      <div id="empty-state" style="display:none;text-align:center;padding:3.5rem 1rem">
+        <div style="font-size:2.5rem;margin-bottom:0.75rem">🔍</div>
+        <h3 style="font-size:1rem;margin-bottom:0.4rem" id="empty-heading">No businesses found</h3>
+        <p class="text-muted" style="font-size:0.85rem;max-width:34ch;margin:0 auto 1.25rem" id="empty-sub">
+          Try a different search term or browse by category below.
+        </p>
+        <div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-glass btn-sm" onclick="clearSearch()">Clear search</button>
+          <button class="btn btn-glass btn-sm" onclick="clearFilters()">Clear filters</button>
+          <button class="btn btn-primary btn-sm" onclick="clearAll()">Show all businesses</button>
+        </div>
       </div>
     </main>
   </div>
@@ -223,6 +229,10 @@
     filters.q = document.getElementById('search-input').value.trim()
     renderResults()
   }
+
+  function clearSearch()  { filters.q = ''; document.getElementById('search-input').value = ''; renderResults() }
+  function clearFilters() { filters.cat = ''; filters.zone = ''; filters.tier = ''; document.querySelectorAll('[data-cat],[data-zone],[data-tier]').forEach(b => b.classList.remove('active')); renderResults() }
+  function clearAll()     { clearSearch(); clearFilters() }
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && document.activeElement?.id === 'search-input') runSearch()
   })
@@ -265,6 +275,19 @@
     if (data.length === 0) {
       grid.innerHTML = ''
       empty.style.display = 'block'
+      // Context-aware empty state messaging
+      const heading = document.getElementById('empty-heading')
+      const sub     = document.getElementById('empty-sub')
+      if (filters.q) {
+        heading.textContent = `No results for "${filters.q}"`
+        sub.textContent = 'Try a broader search — or browse all businesses in Mdantsane.'
+      } else if (filters.cat || filters.zone || filters.tier) {
+        heading.textContent = 'No businesses match this filter'
+        sub.textContent = 'Try removing a filter to see more results.'
+      } else {
+        heading.textContent = 'No businesses yet'
+        sub.textContent = 'Be the first to register your business on SondelaBiz.'
+      }
     } else {
       empty.style.display = 'none'
       grid.innerHTML = data.map(b => {
